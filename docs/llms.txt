@@ -1,0 +1,35 @@
+# EightyOne
+
+> EightyOne runs factories and field-service companies: machines, work orders, stock, quality and maintenance, all as tasks. It has a REST API (/api/v1, OpenAPI 3.1), an MCP server (/mcp) for AI agents, Standard Webhooks, and factory specs that set up a whole company from one file. It holds no prices or costs.
+
+## Guides
+
+- [EightyOne developer docs](https://docs.eightyone.app/guides/index.md): Start here: the ways in (REST, MCP, webhooks, the skill, factory specs) and where the reference is
+- [Getting started](https://docs.eightyone.app/guides/getting-started.md): Credentials (API keys, OAuth, service accounts), the first call, ids, paging, errors, idempotency, dry runs
+- [Agents and MCP](https://docs.eightyone.app/guides/agents-and-mcp.md): Connecting an MCP client, what agents can and can't do, preview-then-confirm, installing the skill
+- [Tasks: everything is a task](https://docs.eightyone.app/guides/tasks.md): Task types, forms, statuses, completion, connections: everything that happens is a task
+- [Production: work orders, routings, counts, lots](https://docs.eightyone.app/guides/production.md): Products, recipes, work centers, routings, work orders, release, counts, backflush, lots
+- [Inventory: storage, bins, moves, counts](https://docs.eightyone.app/guides/inventory.md): Storage, bins, transfers, receiving, shipping, cycle counts, reordering
+- [Quality, maintenance and downtime](https://docs.eightyone.app/guides/quality-and-maintenance.md): Inspections, NCRs and dispositions, failure coding, preventive maintenance, downtime
+- [Factory or managed services](https://docs.eightyone.app/guides/factory-and-managed-services.md): The two kinds of company, and partner companies
+- [Commissioning: a company from one file](https://docs.eightyone.app/guides/commissioning.md): Setting up a whole company from one factory spec: export, validate, plan, apply
+- [Webhooks](https://docs.eightyone.app/guides/webhooks.md): Standard Webhooks deliveries, verifying the Ed25519 signature, retries
+- [Downloads](https://docs.eightyone.app/guides/downloads.md): The skill (plugin and zip), llms-full.txt, OpenAPI and the spec schema
+
+## Reference
+
+- [EightyOne capabilities](https://docs.eightyone.app/reference/capabilities.md): Every operation: input, output, permission, REST path, MCP tool
+- [EightyOne webhook events](https://docs.eightyone.app/reference/events.md): Every webhook event and the fields of its data
+- [Errors](https://docs.eightyone.app/reference/errors.md): Every error code, what it means, what to do
+- [Permissions](https://docs.eightyone.app/reference/permissions.md): Every permission and the capabilities it unlocks
+- [OpenAPI 3.1](https://docs.eightyone.app/reference/openapi.json): the REST API and its webhooks
+- [Factory spec schema](https://docs.eightyone.app/reference/factory-spec.schema.json): JSON Schema of config.validate / plan / apply
+
+## Agents
+
+- [The eightyone skill](https://docs.eightyone.app/skill/eightyone/SKILL.md): Rules and playbooks for agents working in EightyOne.
+- [MCP tools](https://docs.eightyone.app/skill/eightyone/reference/tools.md): every tool the MCP server lists
+
+## Optional
+
+- [Everything in one file](https://docs.eightyone.app/llms-full.txt)

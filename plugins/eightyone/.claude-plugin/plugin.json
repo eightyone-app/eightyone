@@ -1,0 +1,17 @@
+{
+  "name": "eightyone",
+  "version": "2026.1019.1",
+  "description": "Work with EightyOne (factory and field-service operations) through its MCP server: commission a factory from a template, configure task types and forms, run the floor, and analyze machines, downtime, maintenance, work orders, inventory and quality.",
+  "author": {
+    "name": "EightyOne",
+    "url": "https://eightyone.app"
+  },
+  "homepage": "https://docs.eightyone.app",
+  "keywords": [
+    "manufacturing",
+    "mes",
+    "cmms",
+    "inventory",
+    "mcp"
+  ]
+}

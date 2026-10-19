@@ -1,0 +1,3037 @@
+{
+  "version": 1,
+  "settings": {
+    "mobileColor": "#2A3D45",
+    "polygonRadius": 100,
+    "dueDateReminderDays": 0,
+    "subcontractorExpirationReminderDays": 30,
+    "createdTaskAsReady": false,
+    "useSubmittedStatus": false,
+    "kittingAlwaysGenerate": false,
+    "defaultTaskView": "table-map",
+    "additionalLanguages": [],
+    "assigneePriorityOrder": [
+      "polygon",
+      "site",
+      "taskType"
+    ],
+    "productionOutputStorageUnit": "Production Output / Output",
+    "ncrTaskType": "NCR"
+  },
+  "ssuStatuses": [
+    {
+      "name": "Working",
+      "category": "RUNNING",
+      "color": "#12B76A",
+      "isDefault": false,
+      "sortOrder": 0
+    },
+    {
+      "name": "Idle",
+      "category": "IDLE",
+      "color": "#667085",
+      "isDefault": true,
+      "sortOrder": 1
+    },
+    {
+      "name": "Down",
+      "category": "DOWN",
+      "color": "#F04438",
+      "isDefault": false,
+      "sortOrder": 2
+    },
+    {
+      "name": "In service",
+      "category": "MAINTENANCE",
+      "color": "#2E90FA",
+      "isDefault": false,
+      "sortOrder": 3
+    },
+    {
+      "name": "In maintenance",
+      "category": "MAINTENANCE",
+      "color": "#F79009",
+      "isDefault": false,
+      "sortOrder": 4
+    }
+  ],
+  "reasonCodes": [
+    {
+      "kind": "adjustment",
+      "label": "Not found",
+      "code": "NOT-FOUND",
+      "sortOrder": 0,
+      "isActive": true
+    },
+    {
+      "kind": "adjustment",
+      "label": "Damaged beyond use",
+      "code": "DAMAGED",
+      "sortOrder": 1,
+      "isActive": true
+    },
+    {
+      "kind": "adjustment",
+      "label": "Count error",
+      "code": "COUNT-ERROR",
+      "sortOrder": 2,
+      "isActive": true
+    },
+    {
+      "kind": "adjustment",
+      "label": "Count surplus",
+      "code": "COUNT-SURPLUS",
+      "sortOrder": 3,
+      "isActive": true
+    },
+    {
+      "kind": "downtime",
+      "label": "Changeover",
+      "code": "CHG",
+      "sortOrder": 0,
+      "isActive": true
+    },
+    {
+      "kind": "downtime",
+      "label": "Optics contamination",
+      "code": "BRK-OPT",
+      "parent": "BRK",
+      "sortOrder": 0,
+      "isActive": true
+    },
+    {
+      "kind": "downtime",
+      "label": "Material wait",
+      "code": "MAT",
+      "sortOrder": 1,
+      "isActive": true
+    },
+    {
+      "kind": "downtime",
+      "label": "Nozzle wear",
+      "code": "BRK-NOZ",
+      "parent": "BRK",
+      "sortOrder": 1,
+      "isActive": true
+    },
+    {
+      "kind": "downtime",
+      "label": "Breakdown",
+      "code": "BRK",
+      "sortOrder": 2,
+      "isActive": true
+    },
+    {
+      "kind": "downtime",
+      "label": "Chiller fault",
+      "code": "BRK-CHL",
+      "parent": "BRK",
+      "sortOrder": 2,
+      "isActive": true
+    },
+    {
+      "kind": "downtime",
+      "label": "Planned maintenance",
+      "code": "PM",
+      "sortOrder": 3,
+      "isActive": true
+    },
+    {
+      "kind": "failure_cause",
+      "label": "Contaminated optics",
+      "code": "FC-OPT",
+      "sortOrder": 0,
+      "isActive": true
+    },
+    {
+      "kind": "failure_cause",
+      "label": "Worn nozzle",
+      "code": "FC-NOZ",
+      "sortOrder": 1,
+      "isActive": true
+    },
+    {
+      "kind": "failure_cause",
+      "label": "Wire depleted",
+      "code": "FC-WIRE",
+      "sortOrder": 2,
+      "isActive": true
+    },
+    {
+      "kind": "failure_cause",
+      "label": "Loose fixture",
+      "code": "FC-FIX",
+      "sortOrder": 3,
+      "isActive": true
+    },
+    {
+      "kind": "failure_cause",
+      "label": "Chiller degraded",
+      "code": "FC-CHL",
+      "sortOrder": 4,
+      "isActive": true
+    },
+    {
+      "kind": "failure_problem",
+      "label": "Beam power loss",
+      "code": "FP-PWR",
+      "sortOrder": 0,
+      "isActive": true
+    },
+    {
+      "kind": "failure_problem",
+      "label": "Bad cut quality",
+      "code": "FP-CUT",
+      "sortOrder": 1,
+      "isActive": true
+    },
+    {
+      "kind": "failure_problem",
+      "label": "No wire feed",
+      "code": "FP-FEED",
+      "sortOrder": 2,
+      "isActive": true
+    },
+    {
+      "kind": "failure_problem",
+      "label": "Dimensional drift",
+      "code": "FP-DIM",
+      "sortOrder": 3,
+      "isActive": true
+    },
+    {
+      "kind": "failure_remedy",
+      "label": "Clean / replace optics",
+      "code": "FR-OPT",
+      "sortOrder": 0,
+      "isActive": true
+    },
+    {
+      "kind": "failure_remedy",
+      "label": "Replace nozzle",
+      "code": "FR-NOZ",
+      "sortOrder": 1,
+      "isActive": true
+    },
+    {
+      "kind": "failure_remedy",
+      "label": "Restock & reset",
+      "code": "FR-STK",
+      "sortOrder": 2,
+      "isActive": true
+    },
+    {
+      "kind": "failure_remedy",
+      "label": "Recalibrate",
+      "code": "FR-CAL",
+      "sortOrder": 3,
+      "isActive": true
+    },
+    {
+      "kind": "failure_remedy",
+      "label": "Service chiller",
+      "code": "FR-CHL",
+      "sortOrder": 4,
+      "isActive": true
+    }
+  ],
+  "workCenters": [
+    {
+      "name": "Assembly & QA"
+    },
+    {
+      "name": "Laser Cutting"
+    },
+    {
+      "name": "Machining"
+    },
+    {
+      "name": "Powder Coat"
+    },
+    {
+      "name": "Press Brake"
+    },
+    {
+      "name": "Welding"
+    }
+  ],
+  "sites": [
+    {
+      "name": "Assembly & QA (ASM)",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [
+        {
+          "name": "Hardware Bin Wall",
+          "description": null
+        }
+      ],
+      "ssus": [
+        {
+          "name": "ASM-001 · Coordinate Measuring Machine (CMM)",
+          "status": "Idle",
+          "workCenter": "Assembly & QA",
+          "criticality": 3,
+          "assetClass": "cmm",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "ASM-002 · Assembly Bench #1",
+          "status": "Idle",
+          "workCenter": "Assembly & QA",
+          "criticality": 2,
+          "assetClass": "bench",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "ASM-003 · Assembly Bench #2",
+          "status": "Idle",
+          "workCenter": "Assembly & QA",
+          "criticality": 2,
+          "assetClass": "bench",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "ASM-004 · Inspection / Vision Station",
+          "status": "Idle",
+          "workCenter": "Assembly & QA",
+          "criticality": 3,
+          "assetClass": "vision",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "name": "Cutting Bay",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [
+        {
+          "name": "CUT Consumables Point",
+          "description": null
+        }
+      ],
+      "ssus": [
+        {
+          "name": "CUT-001 · Fiber Laser Cutter #1",
+          "status": "Idle",
+          "workCenter": "Laser Cutting",
+          "criticality": 5,
+          "assetClass": "laser_cutter",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "CUT-002 · Fiber Laser Cutter #2",
+          "status": "In maintenance",
+          "workCenter": "Laser Cutting",
+          "criticality": 5,
+          "assetClass": "laser_cutter",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "CUT-003 · Plasma Cutting Table",
+          "status": "Idle",
+          "workCenter": "Laser Cutting",
+          "criticality": 3,
+          "assetClass": "plasma_table",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "CUT-004 · Hydraulic Shear",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "shear",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "CUT-005 · Turret Punch Press",
+          "status": "Idle",
+          "criticality": 3,
+          "assetClass": "punch",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "CUT-006 · Horizontal Bandsaw",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "bandsaw",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "CUT-007 · Sheet Load/Unload Tower #1",
+          "status": "Working",
+          "criticality": 3,
+          "assetClass": "material_tower",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "CUT-008 · Sheet Load/Unload Tower #2",
+          "status": "Idle",
+          "criticality": 3,
+          "assetClass": "material_tower",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "name": "Facility / Utilities (FAC)",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [],
+      "ssus": [
+        {
+          "name": "FAC-001 · Air Compressor #1",
+          "status": "Working",
+          "criticality": 4,
+          "assetClass": "compressor",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FAC-002 · Air Compressor #2",
+          "status": "Idle",
+          "criticality": 4,
+          "assetClass": "compressor",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FAC-003 · Dust Collector",
+          "status": "Working",
+          "criticality": 3,
+          "assetClass": "dust_collector",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "name": "Finishing / Powder Coat (FIN)",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [
+        {
+          "name": "Powder Shelf",
+          "description": null
+        }
+      ],
+      "ssus": [
+        {
+          "name": "FIN-001 · Blast Cabinet",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "blast",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FIN-002 · Powder Coat Booth",
+          "status": "Idle",
+          "workCenter": "Powder Coat",
+          "criticality": 4,
+          "assetClass": "powder_booth",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FIN-003 · Cure Oven",
+          "status": "In maintenance",
+          "workCenter": "Powder Coat",
+          "criticality": 4,
+          "assetClass": "cure_oven",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "name": "Forming Bay",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [
+        {
+          "name": "Brake Tooling Rack",
+          "description": null
+        }
+      ],
+      "ssus": [
+        {
+          "name": "FRM-001 · CNC Press Brake #1",
+          "status": "Idle",
+          "workCenter": "Press Brake",
+          "criticality": 4,
+          "assetClass": "press_brake",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FRM-002 · CNC Press Brake #2",
+          "status": "Idle",
+          "workCenter": "Press Brake",
+          "criticality": 4,
+          "assetClass": "press_brake",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FRM-003 · CNC Press Brake #3",
+          "status": "Idle",
+          "workCenter": "Press Brake",
+          "criticality": 3,
+          "assetClass": "press_brake",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FRM-004 · CNC Press Brake #4",
+          "status": "Idle",
+          "workCenter": "Press Brake",
+          "criticality": 3,
+          "assetClass": "press_brake",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FRM-005 · Plate Roll",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "plate_roll",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "FRM-006 · Wide-Belt Deburr",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "deburr",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "name": "Machining Cell",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [],
+      "ssus": [
+        {
+          "name": "MCH-001 · CNC Mill #1 (VMC)",
+          "status": "Idle",
+          "workCenter": "Machining",
+          "criticality": 3,
+          "assetClass": "cnc_mill",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "MCH-002 · CNC Mill #2 (VMC)",
+          "status": "Idle",
+          "workCenter": "Machining",
+          "criticality": 3,
+          "assetClass": "cnc_mill",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "MCH-003 · CNC Mill #3 (VMC)",
+          "status": "Idle",
+          "workCenter": "Machining",
+          "criticality": 3,
+          "assetClass": "cnc_mill",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "MCH-004 · CNC Lathe",
+          "status": "Idle",
+          "workCenter": "Machining",
+          "criticality": 3,
+          "assetClass": "cnc_lathe",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "MCH-005 · Drill / Tap Station",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "drill_tap",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "name": "Material Handling (MTH)",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [
+        {
+          "name": "Sheet Rack A",
+          "description": null
+        },
+        {
+          "name": "Tube Rack",
+          "description": null
+        }
+      ],
+      "ssus": [
+        {
+          "name": "MTH-001 · Forklift #1",
+          "status": "Working",
+          "criticality": 2,
+          "assetClass": "forklift",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "MTH-002 · Forklift #2",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "forklift",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "MTH-003 · Overhead Crane (5t)",
+          "status": "Idle",
+          "criticality": 3,
+          "assetClass": "crane",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "name": "San Marcos Plant",
+      "notes": null,
+      "isActive": true,
+      "isDefault": true,
+      "storageUnits": [
+        {
+          "name": "FG Rack A",
+          "description": null
+        }
+      ],
+      "ssus": []
+    },
+    {
+      "name": "Welding & Fabrication",
+      "notes": null,
+      "isActive": true,
+      "isDefault": false,
+      "storageUnits": [
+        {
+          "name": "Wire & Gas Rack",
+          "description": null
+        }
+      ],
+      "ssus": [
+        {
+          "name": "WLD-001 · Robotic Weld Cell #1",
+          "status": "Idle",
+          "workCenter": "Welding",
+          "criticality": 4,
+          "assetClass": "weld_cell",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "WLD-002 · Robotic Weld Cell #2",
+          "status": "Idle",
+          "workCenter": "Welding",
+          "criticality": 4,
+          "assetClass": "weld_cell",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "WLD-003–004 · Manual MIG/TIG Stations #1–2",
+          "status": "Idle",
+          "workCenter": "Welding",
+          "criticality": 3,
+          "assetClass": "weld_station",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "WLD-005–006 · Manual MIG/TIG Stations #3–4",
+          "status": "Idle",
+          "workCenter": "Welding",
+          "criticality": 3,
+          "assetClass": "weld_station",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "WLD-007–008 · Manual MIG/TIG Stations #5–6",
+          "status": "Idle",
+          "workCenter": "Welding",
+          "criticality": 3,
+          "assetClass": "weld_station",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "WLD-011 · Weld Positioner",
+          "status": "Idle",
+          "criticality": 2,
+          "assetClass": "positioner",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        },
+        {
+          "name": "WLD-012 · Weld Fume Extraction System",
+          "status": "Working",
+          "criticality": 3,
+          "assetClass": "fume_extraction",
+          "icon": "cpu",
+          "isActive": true,
+          "isDefault": false
+        }
+      ]
+    }
+  ],
+  "warehouses": [
+    {
+      "name": "Partner orders",
+      "description": null,
+      "storageUnits": [
+        {
+          "name": "Shelf P1",
+          "description": null
+        }
+      ]
+    },
+    {
+      "name": "Production Output",
+      "description": "Default destination for production output",
+      "storageUnits": [
+        {
+          "name": "Output",
+          "description": null
+        }
+      ]
+    }
+  ],
+  "productCategories": [
+    {
+      "name": "Exa",
+      "description": null,
+      "isActive": true
+    }
+  ],
+  "vendors": [
+    {
+      "name": "Gulf Coast Steel"
+    },
+    {
+      "name": "Hill Country Steel Supply"
+    },
+    {
+      "name": "LaserTech Optics & Consumables"
+    }
+  ],
+  "products": [
+    {
+      "sku": "ABR-BELT",
+      "name": "Wide-Belt Sanding Belts",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "ABR-DISC",
+      "name": "Grinding Wheels / Flap Discs",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "BRK-450",
+      "name": "BRK-450 HD Bracket Kit",
+      "description": null,
+      "itemClass": "finished",
+      "tracking": "lot",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "recipe": [
+        {
+          "sku": "FIN-PWD-GRY",
+          "quantity": 1
+        },
+        {
+          "sku": "HW-PACK-450",
+          "quantity": 1
+        },
+        {
+          "sku": "STL-11GA",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "sku": "BRZ-CFM-9",
+      "name": "Condenser fan motor CFM-9",
+      "description": null,
+      "itemClass": "finished",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "BRZ-CG-12",
+      "name": "Coil guard CG-12",
+      "description": null,
+      "itemClass": "finished",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "BRZ-GB-3",
+      "name": "Guard bracket GB-3",
+      "description": "Welded bracket for chiller coil guards",
+      "itemClass": "finished",
+      "tracking": "lot",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "BRZ-SC-2",
+      "name": "Steel coil 2mm",
+      "description": "Galvanised steel coil, 2 mm",
+      "itemClass": "raw",
+      "tracking": "lot",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "ENC-300",
+      "name": "ENC-300 NEMA-3R Utility Enclosure",
+      "description": null,
+      "itemClass": "finished",
+      "tracking": "lot",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "recipe": [
+        {
+          "sku": "FIN-PWD-BLK",
+          "quantity": 2
+        },
+        {
+          "sku": "HW-GASKET",
+          "quantity": 1
+        },
+        {
+          "sku": "HW-GND",
+          "quantity": 1
+        },
+        {
+          "sku": "HW-HINGE",
+          "quantity": 1
+        },
+        {
+          "sku": "HW-LATCH",
+          "quantity": 1
+        },
+        {
+          "sku": "HW-PEM",
+          "quantity": 24
+        },
+        {
+          "sku": "STL-14GA",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "sku": "FAC-DC-FILT",
+      "name": "Dust Collector Cartridge Filters",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "FIN-FILT",
+      "name": "Booth Filters",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "FIN-PWD-BLK",
+      "name": "Powder Coat - RAL 9005 Black",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "lb",
+      "purchasingUnitOfMeasurement": "lb",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "stockPolicies": [
+        {
+          "storage": "Finishing / Powder Coat (FIN)",
+          "minQty": 100,
+          "maxQty": 500,
+          "reorderQty": 300,
+          "safetyDays": 2
+        }
+      ]
+    },
+    {
+      "sku": "FIN-PWD-GRY",
+      "name": "Powder Coat - RAL 7035 Gray",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "lb",
+      "purchasingUnitOfMeasurement": "lb",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "FIN-PWD-ORG",
+      "name": "Powder Coat - Safety Orange",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "lb",
+      "purchasingUnitOfMeasurement": "lb",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "FIN-SHOT",
+      "name": "Blast Media (steel shot)",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "FRM-TOOL",
+      "name": "Press Brake Punch & Die Set",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "HW-GASKET",
+      "name": "Door Gasket Kit",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "HW-GND",
+      "name": "Ground Stud Kit",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "HW-HINGE",
+      "name": "Enclosure Hinge Kit",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "HW-LATCH",
+      "name": "3-Point Latch Kit a",
+      "description": "",
+      "itemClass": "raw",
+      "tracking": "lot",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": "B1a",
+      "category": "Exa",
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "HW-PACK-450",
+      "name": "BRK-450 Hardware Pack",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "HW-PEM",
+      "name": "PEM Inserts (asst.)",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "LSR-CER",
+      "name": "Laser Ceramic Ring",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "LSR-LENS",
+      "name": "Laser Focus Lens",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "vendors": [
+        {
+          "vendor": "LaserTech Optics & Consumables",
+          "vendorSku": null,
+          "leadTimeDays": 10,
+          "priority": 1,
+          "code": null,
+          "codeType": null
+        }
+      ]
+    },
+    {
+      "sku": "LSR-NOZ-AST",
+      "name": "Laser Cutting Nozzles (asst.)",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "vendors": [
+        {
+          "vendor": "LaserTech Optics & Consumables",
+          "vendorSku": null,
+          "leadTimeDays": 7,
+          "priority": 1,
+          "code": null,
+          "codeType": null
+        }
+      ]
+    },
+    {
+      "sku": "LSR-WIN",
+      "name": "Laser Protective Windows",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MEC-BELT",
+      "name": "Drive Belts (asst.)",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MEC-BRG",
+      "name": "Bearings (asst.)",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MEC-COOL",
+      "name": "Cutting Coolant Concentrate (5 gal)",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MEC-HYD-FILT",
+      "name": "Hydraulic Filters",
+      "description": "",
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": "#9400E8",
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MEC-HYD-OIL",
+      "name": "Hydraulic Oil ISO 46 (5 gal)",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MEC-PNEU",
+      "name": "Pneumatic Filter/Regulators",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MTH-LP",
+      "name": "Forklift LP Tanks",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "MTH-SLING",
+      "name": "Crane Slings / Wire Rope",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "PLZ-CONS",
+      "name": "Plasma Electrodes/Tips Kit",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "STL-11GA",
+      "name": "Steel Sheet 11ga 60x120",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "vendors": [
+        {
+          "vendor": "Hill Country Steel Supply",
+          "vendorSku": null,
+          "leadTimeDays": 5,
+          "priority": 1,
+          "code": null,
+          "codeType": null
+        }
+      ]
+    },
+    {
+      "sku": "STL-14GA",
+      "name": "Steel Sheet 14ga 60x120",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "vendors": [
+        {
+          "vendor": "Hill Country Steel Supply",
+          "vendorSku": null,
+          "leadTimeDays": 5,
+          "priority": 1,
+          "code": null,
+          "codeType": null
+        }
+      ],
+      "stockPolicies": [
+        {
+          "storage": "Material Handling (MTH)",
+          "minQty": 20,
+          "maxQty": 120,
+          "reorderQty": 60,
+          "safetyDays": 2
+        }
+      ]
+    },
+    {
+      "sku": "STL-TUBE",
+      "name": "Steel Tube 2x2 11ga (24ft)",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "TL-LASER-KIT",
+      "name": "Laser Alignment & Optics Tool Kit",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "TL-TORQUE",
+      "name": "Torque Wrench Set",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "TL-WELD-GAUGE",
+      "name": "Weld Inspection Gauge Kit",
+      "description": null,
+      "itemClass": "operations",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "WIP-ENC-BLNK",
+      "name": "ENC-300 Cut Blank Set",
+      "description": null,
+      "itemClass": "wip",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "WIP-ENC-PNL",
+      "name": "ENC-300 Formed Panel Set",
+      "description": null,
+      "itemClass": "wip",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "WLD-DIFF",
+      "name": "Gas Diffusers",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "WLD-GAS-7525",
+      "name": "Shielding Gas 75/25 (cylinder)",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "stockPolicies": [
+        {
+          "storage": "Welding & Fabrication",
+          "minQty": 4,
+          "maxQty": 12,
+          "reorderQty": 8,
+          "safetyDays": 2
+        }
+      ]
+    },
+    {
+      "sku": "WLD-GAS-AR",
+      "name": "Shielding Gas Argon (cylinder)",
+      "description": "",
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "changeover": {
+        "setup": [
+          {
+            "id": "n_1790501424535_585946",
+            "type": "checkbox",
+            "title": "Cylinder tightly secured",
+            "required": false
+          }
+        ],
+        "teardown": [
+          {
+            "id": "n_1790501586924_593747",
+            "type": "checkbox",
+            "title": "release slowly",
+            "required": false
+          }
+        ]
+      }
+    },
+    {
+      "sku": "WLD-LINER",
+      "name": "Torch Liners",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "WLD-MIG-035",
+      "name": "MIG Wire ER70S-6 .035 (33 lb)",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true,
+      "vendors": [
+        {
+          "vendor": "Hill Country Steel Supply",
+          "vendorSku": null,
+          "leadTimeDays": 3,
+          "priority": 1,
+          "code": null,
+          "codeType": null
+        }
+      ],
+      "stockPolicies": [
+        {
+          "storage": "Welding & Fabrication",
+          "minQty": 6,
+          "maxQty": 36,
+          "reorderQty": 24,
+          "safetyDays": 2
+        }
+      ]
+    },
+    {
+      "sku": "WLD-TIG-ROD",
+      "name": "TIG Filler Rod ER70S (tube)",
+      "description": null,
+      "itemClass": "raw",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    },
+    {
+      "sku": "WLD-TIP-035",
+      "name": "Contact Tips .035",
+      "description": null,
+      "itemClass": "spare_part",
+      "tracking": "none",
+      "unitOfMeasurement": "pcs",
+      "purchasingUnitOfMeasurement": "pcs",
+      "packageQuantity": 1,
+      "brand": null,
+      "category": null,
+      "color": null,
+      "codeType": null,
+      "tags": [],
+      "isActive": true
+    }
+  ],
+  "parameterSets": [
+    {
+      "name": "ENC-300 Laser Program",
+      "parameters": [
+        {
+          "key": "Power",
+          "value": 6,
+          "uom": "kW"
+        },
+        {
+          "key": "Cut speed",
+          "value": 18,
+          "uom": "m/min"
+        },
+        {
+          "key": "N2 assist pressure",
+          "value": 14,
+          "uom": "bar"
+        }
+      ]
+    },
+    {
+      "name": "Press Brake — ENC-300 Panels",
+      "parameters": [
+        {
+          "key": "Tonnage",
+          "value": 85,
+          "uom": "t"
+        },
+        {
+          "key": "Dwell",
+          "value": 2.5,
+          "uom": "s"
+        }
+      ]
+    },
+    {
+      "name": "Weld Schedule ENC-300",
+      "parameters": [
+        {
+          "key": "Current",
+          "value": 210,
+          "uom": "A"
+        },
+        {
+          "key": "Voltage",
+          "value": 24,
+          "uom": "V"
+        },
+        {
+          "key": "Wire feed",
+          "value": 8.5,
+          "uom": "m/min"
+        }
+      ]
+    }
+  ],
+  "taskTypes": [
+    {
+      "name": "Assemble",
+      "color": "#156238",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "Working",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": "Assembly & QA",
+      "product": "ENC-300",
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": 5,
+      "runMinutesPerUnit": 4,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Door gap (mm)",
+          "type": "number",
+          "required": true,
+          "options": [
+            {
+              "id": "config",
+              "uom": "mm",
+              "target": 3,
+              "lsl": 2.5,
+              "usl": 3.5,
+              "decimals": 1
+            }
+          ]
+        },
+        {
+          "title": "Hardware torqued",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Finished unit photo",
+          "type": "camera"
+        },
+        {
+          "title": "Notes",
+          "type": "short_text"
+        }
+      ]
+    },
+    {
+      "name": "Calibration",
+      "color": "#4A00CF",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "In service",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": null,
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": null,
+      "runMinutesPerUnit": null,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Deviation (um)",
+          "type": "number",
+          "required": true,
+          "options": [
+            {
+              "id": "config",
+              "uom": "um",
+              "target": 0,
+              "lsl": -5,
+              "usl": 5,
+              "decimals": 1
+            }
+          ]
+        },
+        {
+          "title": "Artifact returned",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Calibrated by",
+          "type": "signature",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Changeover",
+      "color": "#494949",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "In service",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": "Press Brake",
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": null,
+      "runMinutesPerUnit": null,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Changeover",
+          "type": "target_time",
+          "options": [
+            {
+              "id": "config",
+              "mode": "fixed"
+            }
+          ]
+        },
+        {
+          "title": "Tooling staged",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "First article approved",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Notes",
+          "type": "short_text"
+        }
+      ]
+    },
+    {
+      "name": "Cut",
+      "color": "#0058DB",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "Working",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": "Laser Cutting",
+      "product": "WLD-GAS-AR",
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": 10,
+      "runMinutesPerUnit": 1.5,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Number of sheets produced",
+          "type": "number",
+          "required": true
+        },
+        {
+          "title": "First-article length (mm)",
+          "type": "number",
+          "required": true,
+          "options": [
+            {
+              "id": "config",
+              "uom": "mm",
+              "target": 600,
+              "lsl": 599.5,
+              "usl": 600.5,
+              "decimals": 1
+            }
+          ]
+        },
+        {
+          "title": "Nest photo",
+          "type": "camera"
+        },
+        {
+          "title": "Offcuts binned",
+          "type": "checkbox"
+        }
+      ]
+    },
+    {
+      "name": "Final Inspection",
+      "color": "#1D3F81",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": true,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": null,
+      "ssuStatusOnComplete": null,
+      "workCenter": "Assembly & QA",
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": 0,
+      "runMinutesPerUnit": 0.5,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Dimensions verified",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Finish OK",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Label photo",
+          "type": "camera"
+        },
+        {
+          "title": "QA sign-off",
+          "type": "signature",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Form",
+      "color": "#7A5AF8",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "Working",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": "Press Brake",
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": "Press Brake — ENC-300 Panels",
+      "setupMinutes": 25,
+      "runMinutesPerUnit": 0.8,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Bend angle (deg)",
+          "type": "number",
+          "required": true,
+          "options": [
+            {
+              "id": "config",
+              "uom": "deg",
+              "target": 90,
+              "lsl": 89.5,
+              "usl": 90.5,
+              "decimals": 1
+            }
+          ]
+        },
+        {
+          "title": "Tooling verified",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Notes",
+          "type": "short_text"
+        }
+      ]
+    },
+    {
+      "name": "Kit & Pack",
+      "color": "#0E7C66",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "Working",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": "Assembly & QA",
+      "product": "BRK-450",
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": 5,
+      "runMinutesPerUnit": 0.5,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Kits packed",
+          "type": "number",
+          "required": true
+        },
+        {
+          "title": "Hardware count verified",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Pallet photo",
+          "type": "camera"
+        }
+      ]
+    },
+    {
+      "name": "Maintenance",
+      "color": "#009825",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "In maintenance",
+      "ssuStatusOnComplete": "Working",
+      "workCenter": null,
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": null,
+      "runMinutesPerUnit": null,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": "Laser Optics Maintenance",
+      "form": [
+        {
+          "title": "Cycles at service",
+          "type": "number",
+          "required": true
+        },
+        {
+          "title": "Optics cleaned",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Nozzle replaced",
+          "type": "checkbox"
+        },
+        {
+          "title": "Filters checked",
+          "type": "checkbox"
+        },
+        {
+          "title": "After photo",
+          "type": "camera"
+        },
+        {
+          "title": "test short",
+          "type": "short_text"
+        },
+        {
+          "title": "test long",
+          "type": "text",
+          "options": [
+            {
+              "id": "visibleWhen",
+              "fieldTitle": "test short",
+              "equals": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NCR",
+      "color": "#860000",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": null,
+      "ssuStatusOnComplete": null,
+      "workCenter": null,
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": null,
+      "runMinutesPerUnit": null,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Defect photo",
+          "type": "camera"
+        },
+        {
+          "title": "Disposition",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "id": "1",
+              "title": "Rework",
+              "type": "select"
+            },
+            {
+              "id": "2",
+              "title": "Scrap",
+              "type": "select"
+            },
+            {
+              "id": "3",
+              "title": "Use as is",
+              "type": "select"
+            },
+            {
+              "id": "4",
+              "title": "Return",
+              "type": "select"
+            }
+          ]
+        },
+        {
+          "title": "Description",
+          "type": "short_text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Powder Coat",
+      "color": "#C59200",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "Working",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": "Powder Coat",
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": 20,
+      "runMinutesPerUnit": 0.6,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Color",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "id": "1",
+              "title": "RAL 9005 Black",
+              "type": "select"
+            },
+            {
+              "id": "2",
+              "title": "RAL 7035 Gray",
+              "type": "select"
+            },
+            {
+              "id": "3",
+              "title": "Safety Orange",
+              "type": "select"
+            }
+          ]
+        },
+        {
+          "title": "Film thickness (um)",
+          "type": "number",
+          "required": true,
+          "options": [
+            {
+              "id": "config",
+              "uom": "um",
+              "target": 70,
+              "lsl": 60,
+              "usl": 90,
+              "decimals": 0
+            }
+          ]
+        },
+        {
+          "title": "Oven cycle complete",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "QA Audit",
+      "color": "#8A226F",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": null,
+      "ssuStatusOnComplete": null,
+      "workCenter": null,
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": null,
+      "runMinutesPerUnit": null,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Area",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "id": "1",
+              "title": "Cutting",
+              "type": "select"
+            },
+            {
+              "id": "2",
+              "title": "Forming",
+              "type": "select"
+            },
+            {
+              "id": "3",
+              "title": "Welding",
+              "type": "select"
+            },
+            {
+              "id": "4",
+              "title": "Assembly",
+              "type": "select"
+            },
+            {
+              "id": "5",
+              "title": "Finishing",
+              "type": "select"
+            }
+          ]
+        },
+        {
+          "title": "5S standard met",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Lockout/tagout followed",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Calibration stickers current",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Findings",
+          "type": "short_text"
+        },
+        {
+          "title": "Auditor",
+          "type": "signature",
+          "required": true
+        },
+        {
+          "title": "Unnamed",
+          "type": "products"
+        }
+      ]
+    },
+    {
+      "name": "Receiving",
+      "color": "#0E9384",
+      "isQuote": false,
+      "isUserGenerated": true,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": null,
+      "ssuStatusOnComplete": null,
+      "workCenter": null,
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": null,
+      "runMinutesPerUnit": null,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "PO number",
+          "type": "short_text",
+          "required": true
+        },
+        {
+          "title": "Qty received",
+          "type": "number",
+          "required": true
+        },
+        {
+          "title": "Condition",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "id": "1",
+              "title": "Good",
+              "type": "select"
+            },
+            {
+              "id": "2",
+              "title": "Damaged",
+              "type": "select"
+            },
+            {
+              "id": "3",
+              "title": "Short shipment",
+              "type": "select"
+            }
+          ]
+        },
+        {
+          "title": "Packing slip photo",
+          "type": "camera"
+        }
+      ]
+    },
+    {
+      "name": "Service",
+      "color": "#DE0000",
+      "isQuote": false,
+      "isUserGenerated": true,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": true,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "Down",
+      "ssuStatusOnComplete": "Working",
+      "workCenter": null,
+      "product": null,
+      "outputStorageUnit": null,
+      "parameterSet": null,
+      "setupMinutes": null,
+      "runMinutesPerUnit": null,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Before photo",
+          "type": "camera"
+        },
+        {
+          "title": "Cause",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "id": "1",
+              "title": "Contaminated optics",
+              "type": "select"
+            },
+            {
+              "id": "2",
+              "title": "Worn nozzle",
+              "type": "select"
+            },
+            {
+              "id": "3",
+              "title": "Chiller fault",
+              "type": "select"
+            },
+            {
+              "id": "4",
+              "title": "Wire depleted",
+              "type": "select"
+            },
+            {
+              "id": "5",
+              "title": "other",
+              "type": "select"
+            }
+          ]
+        },
+        {
+          "title": "Details",
+          "type": "short_text",
+          "options": [
+            {
+              "id": "visibleWhen",
+              "fieldTitle": "Cause",
+              "equals": "other"
+            }
+          ]
+        },
+        {
+          "title": "After photo",
+          "type": "camera"
+        },
+        {
+          "title": "Test cut OK",
+          "type": "checkbox"
+        }
+      ]
+    },
+    {
+      "name": "Weld",
+      "color": "#DE5B00",
+      "isQuote": false,
+      "isUserGenerated": false,
+      "isRemote": false,
+      "isInventory": false,
+      "isDataRequest": false,
+      "defaultUseTransit": true,
+      "requiresFailureCoding": false,
+      "createdTaskAsReady": false,
+      "useSubmittedStatus": false,
+      "allowFieldTakeover": true,
+      "recurrenceHours": null,
+      "ssuStatusOnOpen": "Working",
+      "ssuStatusOnComplete": "Idle",
+      "workCenter": "Welding",
+      "product": "HW-PACK-450",
+      "outputStorageUnit": null,
+      "parameterSet": "Weld Schedule ENC-300",
+      "setupMinutes": 15,
+      "runMinutesPerUnit": 2,
+      "minRank": 0,
+      "team": null,
+      "requiredSkill": null,
+      "form": [
+        {
+          "title": "Fixture torqued",
+          "type": "checkbox",
+          "required": true
+        },
+        {
+          "title": "Weld gauge (mm)",
+          "type": "number",
+          "required": true,
+          "options": [
+            {
+              "id": "config",
+              "uom": "mm",
+              "target": 6,
+              "lsl": 5,
+              "usl": 7,
+              "decimals": 1
+            }
+          ]
+        },
+        {
+          "title": "Weld seam photo",
+          "type": "camera"
+        },
+        {
+          "title": "Test short",
+          "type": "short_text"
+        },
+        {
+          "title": "Test Long",
+          "type": "text",
+          "options": [
+            {
+              "id": "visibleWhen",
+              "fieldTitle": "Test short",
+              "equals": "a"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "routings": [
+    {
+      "name": "BRK-450 Bracket Line",
+      "product": "BRK-450",
+      "steps": [
+        {
+          "name": "Cut",
+          "taskType": "Cut"
+        },
+        {
+          "name": "Form",
+          "taskType": "Form"
+        },
+        {
+          "name": "Kit & Pack",
+          "taskType": "Kit & Pack"
+        },
+        {
+          "name": "Final Inspection",
+          "taskType": "Final Inspection"
+        }
+      ]
+    },
+    {
+      "name": "ENC-300 Enclosure Line",
+      "product": "ENC-300",
+      "steps": [
+        {
+          "name": "Cut",
+          "taskType": "Cut"
+        },
+        {
+          "name": "Form",
+          "taskType": "Form"
+        },
+        {
+          "name": "Weld",
+          "taskType": "Weld"
+        },
+        {
+          "name": "Powder Coat",
+          "taskType": "Powder Coat"
+        },
+        {
+          "name": "Assemble",
+          "taskType": "Assemble"
+        },
+        {
+          "name": "Final Inspection",
+          "taskType": "Final Inspection"
+        }
+      ]
+    }
+  ],
+  "machineData": [
+    {
+      "ssu": "Cutting Bay / CUT-001 · Fiber Laser Cutter #1",
+      "signals": [
+        {
+          "key": "cycles",
+          "kind": "counter",
+          "name": "Cutting cycles",
+          "uom": "cycles",
+          "isMeter": true,
+          "isRunState": false,
+          "runningValue": null
+        },
+        {
+          "key": "machine_state",
+          "kind": "state",
+          "name": "Machine state",
+          "uom": null,
+          "isMeter": false,
+          "isRunState": true,
+          "runningValue": "RUN"
+        }
+      ],
+      "conditionRules": [
+        {
+          "name": "Optics PM every 40k cycles",
+          "mode": "threshold",
+          "signal": "cycles",
+          "operator": "gt",
+          "threshold": 40000,
+          "taskType": "Maintenance",
+          "cooldownHours": 168,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "ssu": "Cutting Bay / CUT-002 · Fiber Laser Cutter #2",
+      "signals": [
+        {
+          "key": "cycles",
+          "kind": "counter",
+          "name": "Cutting cycles",
+          "uom": "cycles",
+          "isMeter": true,
+          "isRunState": false,
+          "runningValue": null
+        },
+        {
+          "key": "machine_state",
+          "kind": "state",
+          "name": "Machine state",
+          "uom": null,
+          "isMeter": false,
+          "isRunState": true,
+          "runningValue": "RUN"
+        }
+      ],
+      "conditionRules": [
+        {
+          "name": "Optics PM every 40k cycles",
+          "mode": "threshold",
+          "signal": "cycles",
+          "operator": "gt",
+          "threshold": 40000,
+          "taskType": "Maintenance",
+          "cooldownHours": 168,
+          "enabled": true
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "name": "Test 1",
+      "startsWith": "Changeover",
+      "nodes": [
+        {
+          "taskType": "Calibration",
+          "x": 525.8504796865083,
+          "y": 479.0777593696031,
+          "inheritAssignee": false
+        },
+        {
+          "taskType": "Changeover",
+          "x": 120,
+          "y": 100,
+          "inheritAssignee": false
+        },
+        {
+          "taskType": "QA Audit",
+          "x": 500.5738363517039,
+          "y": 147.34605165416065,
+          "inheritAssignee": false
+        },
+        {
+          "taskType": "Weld",
+          "x": 775.5028423304711,
+          "y": 110.69246712390236,
+          "inheritAssignee": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "Calibration",
+          "to": "QA Audit",
+          "onStatus": "done"
+        },
+        {
+          "from": "Changeover",
+          "to": "QA Audit",
+          "onStatus": "done"
+        },
+        {
+          "from": "QA Audit",
+          "to": "Calibration",
+          "onStatus": "incomplete"
+        },
+        {
+          "from": "QA Audit",
+          "to": "Weld",
+          "onStatus": "done"
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "name": "Issue Bissue",
+      "taskType": "NCR",
+      "priority": 15,
+      "form": []
+    },
+    {
+      "name": "Issue Report",
+      "taskType": "Service",
+      "priority": "standard",
+      "form": [
+        {
+          "title": "What happened?",
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "permissionGroups": [
+    {
+      "name": "Administrator",
+      "color": "#E53E3E",
+      "permissions": [
+        "tasks:view_all",
+        "tasks:view_my_teams",
+        "tasks:view_pre_active",
+        "tasks:create",
+        "tasks:delete",
+        "tasks:reassign",
+        "tasks:change_status_mobile",
+        "task_types:view",
+        "task_types:manage",
+        "mobile_builder:view",
+        "mobile_builder:manage",
+        "flows:view",
+        "flows:manage",
+        "clients:view",
+        "clients:manage",
+        "geographic:view",
+        "geographic:manage",
+        "personnel:view",
+        "personnel:manage",
+        "subcontractors:view",
+        "subcontractors:manage",
+        "users:view",
+        "users:manage",
+        "access_requests:approve",
+        "permissions:view",
+        "permissions:manage",
+        "settings:view",
+        "settings:manage",
+        "api_keys:view",
+        "api_keys:manage",
+        "webhooks:manage",
+        "audit_logs:view",
+        "data:export",
+        "data:import",
+        "products:view",
+        "products:manage",
+        "inventory:view",
+        "inventory:manage",
+        "inventory:adjust",
+        "inventory:receive",
+        "production:view",
+        "production:manage",
+        "work_orders:release",
+        "machine_data:view",
+        "machine_data:manage",
+        "maintenance:view",
+        "maintenance:manage",
+        "quality:view",
+        "quality:manage",
+        "ncr:disposition",
+        "documents:view",
+        "documents:manage",
+        "documents:publish",
+        "insights:view",
+        "handoffs:send",
+        "partner_data:request",
+        "partner_data:release",
+        "ai_guidance:manage"
+      ]
+    },
+    {
+      "name": "Field User",
+      "color": "#e5d603",
+      "permissions": [
+        "tasks:change_status_mobile",
+        "inventory:receive",
+        "insights:view"
+      ]
+    },
+    {
+      "name": "manager",
+      "color": "#00a828",
+      "permissions": [
+        "tasks:view_all",
+        "tasks:view_pre_active",
+        "tasks:create",
+        "tasks:delete",
+        "tasks:reassign",
+        "tasks:change_status_mobile",
+        "task_types:view",
+        "task_types:manage",
+        "mobile_builder:view",
+        "mobile_builder:manage",
+        "flows:view",
+        "flows:manage",
+        "clients:view",
+        "clients:manage",
+        "personnel:view",
+        "personnel:manage",
+        "access_requests:approve",
+        "webhooks:manage",
+        "audit_logs:view",
+        "data:export",
+        "data:import",
+        "products:view",
+        "products:manage",
+        "inventory:receive",
+        "production:view",
+        "production:manage",
+        "work_orders:release",
+        "machine_data:view",
+        "machine_data:manage",
+        "documents:view",
+        "documents:manage",
+        "documents:publish",
+        "insights:view"
+      ]
+    },
+    {
+      "name": "Operator",
+      "color": "#026485",
+      "permissions": [
+        "tasks:view_all",
+        "tasks:view_pre_active",
+        "tasks:create",
+        "tasks:reassign",
+        "tasks:change_status_mobile",
+        "mobile_builder:view",
+        "mobile_builder:manage",
+        "geographic:view",
+        "geographic:manage",
+        "personnel:view",
+        "personnel:manage",
+        "subcontractors:view",
+        "subcontractors:manage",
+        "products:view",
+        "products:manage",
+        "inventory:view",
+        "inventory:manage",
+        "inventory:receive",
+        "maintenance:view",
+        "maintenance:manage",
+        "documents:view",
+        "documents:manage",
+        "insights:view"
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "name": "Admin",
+      "permissionGroup": "Administrator",
+      "color": "#e6020b",
+      "isOperator": false,
+      "isWarehouse": false,
+      "isDefault": true
+    },
+    {
+      "name": "Manager",
+      "permissionGroup": "manager",
+      "color": "#026485",
+      "isOperator": true,
+      "isWarehouse": false,
+      "isDefault": true
+    },
+    {
+      "name": "Operator",
+      "permissionGroup": "Operator",
+      "color": "#00950c",
+      "isOperator": false,
+      "isWarehouse": false,
+      "isDefault": false
+    },
+    {
+      "name": "Supervisor",
+      "permissionGroup": "manager",
+      "color": "#007cee",
+      "isOperator": false,
+      "isWarehouse": false,
+      "isDefault": true
+    },
+    {
+      "name": "Technician",
+      "permissionGroup": "Field User",
+      "color": "#e5d603",
+      "isOperator": false,
+      "isWarehouse": false,
+      "isDefault": false
+    }
+  ],
+  "teams": [],
+  "skills": [
+    {
+      "name": "Laser Optics Maintenance",
+      "description": "Certified to open the beam path: clean/replace nozzles, lenses, protective windows."
+    }
+  ],
+  "inspectionPlans": [],
+  "guidance": []
+}

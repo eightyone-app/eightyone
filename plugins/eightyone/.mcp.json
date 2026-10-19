@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "eightyone": {
+      "type": "http",
+      "url": "https://api.eightyone.app/mcp"
+    }
+  }
+}

@@ -1,0 +1,2251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs.eightyone.app/reference/factory-spec.schema.json",
+  "title": "EightyOne factory spec",
+  "description": "A company's setup, by name. Sections and fields left out are not touched.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "mobileColor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "polygonRadius": {
+          "description": "Geofence radius in meters",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "dueDateReminderDays": {
+          "description": "0 = off",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "subcontractorExpirationReminderDays": {
+          "description": "0 = off",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdTaskAsReady": {
+          "type": "boolean"
+        },
+        "useSubmittedStatus": {
+          "type": "boolean"
+        },
+        "kittingAlwaysGenerate": {
+          "type": "boolean"
+        },
+        "defaultTaskView": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "additionalLanguages": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "assigneePriorityOrder": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "productionOutputStorageUnit": {
+          "description": "Where finished production goes: \"<site or warehouse> / <storage unit>\"",
+          "type": "string"
+        },
+        "ncrTaskType": {
+          "description": "Task type used for non-conformance reports (NCRs)",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kittingTaskType": {
+          "description": "Task type used for kitting work orders",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "documentApprovalTaskType": {
+          "description": "Task type used to approve documents",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ecnTaskType": {
+          "description": "Task type used for engineering change notices",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ssuStatuses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "RUNNING",
+              "IDLE",
+              "DOWN",
+              "MAINTENANCE",
+              "OFFLINE"
+            ],
+            "description": "What the status means for analytics: RUNNING, IDLE, DOWN, MAINTENANCE or OFFLINE"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "isDefault": {
+            "description": "The status new SSUs start in (one per company)",
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "name",
+          "category"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reasonCodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "downtime",
+              "failure_problem",
+              "failure_cause",
+              "failure_remedy",
+              "scrap",
+              "adjustment"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "code": {
+            "description": "Short code; with the kind, the key (else the label)",
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parent": {
+            "description": "Code (or label) of a reason of the same kind this one refines",
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "label"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "workCenters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "sites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company. In a factory, a site is a floor or area"
+          },
+          "address": {
+            "description": "Full address. Used when the site is created; not changed afterwards",
+            "type": "string",
+            "maxLength": 500
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "storageUnits": {
+            "description": "Units of the site's own store (each SSU also gets its own unit automatically; those aren't listed)",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "Unique within its site or warehouse"
+                },
+                "description": {
+                  "description": "Where it is and what it holds (aisle, rack, …); its map position comes from the site's address",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "ssus": {
+            "description": "Machines, lines and other units on this site, as a tree",
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema0"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "warehouses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "storageUnits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "Unique within its site or warehouse"
+                },
+                "description": {
+                  "description": "Where it is and what it holds (aisle, rack, …); its map position comes from the site's address",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "productCategories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parent": {
+            "description": "Name of the category this one belongs to",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "vendors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "products": {
+      "description": "Products by SKU, with their vendors, recipe and stock policies. No prices or costs",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "The product's key: unique in the company (case-insensitive)"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "itemClass": {
+            "description": "raw, wip, finished, operations (consumables, tools) or spare_part (machine spares)",
+            "type": "string",
+            "enum": [
+              "raw",
+              "wip",
+              "finished",
+              "operations",
+              "spare_part"
+            ]
+          },
+          "tracking": {
+            "description": "none, lot or serial",
+            "type": "string",
+            "enum": [
+              "none",
+              "lot",
+              "serial"
+            ]
+          },
+          "unitOfMeasurement": {
+            "description": "Stock unit: pcs, kg, g, lb, l, ml, oz, m, cm, mm, yd, ft or in (new products: pcs)",
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasingUnitOfMeasurement": {
+            "description": "The unit it's bought in (new products: the stock unit)",
+            "type": "string",
+            "maxLength": 32
+          },
+          "packageQuantity": {
+            "description": "Stock units in one purchasing unit",
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "brand": {
+            "description": "Brand name (created if new)",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "category": {
+            "description": "Category name (from productCategories, or one the company has)",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "color": {
+            "description": "Color code used on the floor (bins, labels)",
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "codeType": {
+            "description": "How the SKU is printed as a barcode",
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "1d",
+                  "2d",
+                  "qr",
+                  "serial"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "description": "The product's full set of tags",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "vendors": {
+            "description": "Who supplies it. Bought products only: a product with vendors can't have a recipe",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "vendor": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "Vendor name (from vendors, or one the company has)"
+                },
+                "vendorSku": {
+                  "description": "The vendor's own part number",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "leadTimeDays": {
+                  "description": "Order-to-receipt days. When set, reorder uses it instead of the observed lead time",
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "priority": {
+                  "description": "1 = preferred vendor",
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "code": {
+                  "description": "Barcode on the vendor's packaging",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "codeType": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "1d",
+                        "2d",
+                        "qr",
+                        "serial"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "vendor"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "recipe": {
+            "description": "The full recipe (bill of materials): what one unit consumes. Made products only",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sku": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "SKU of the component (from products, or one the company has)"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991,
+                  "description": "How many one unit of the product consumes"
+                }
+              },
+              "required": [
+                "sku",
+                "quantity"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "stockPolicies": {
+            "description": "Minimums and reorder rules, per site or warehouse",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "storage": {
+                  "description": "Site or warehouse name the policy applies to; leave out for the whole company",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "minQty": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Reorder when goods on hand fall below this"
+                },
+                "maxQty": {
+                  "description": "Order up to this",
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reorderQty": {
+                  "description": "Fixed quantity to order",
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "safetyDays": {
+                  "description": "Days of consumption added to the lead time when computing the reorder point",
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "minQty"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "changeover": {
+            "description": "Checklists for a machine changeover: `setup` when this product comes onto a machine, `teardown` when it leaves. Fields as the dashboard stores them: { id, type, title }",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "setup": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "teardown": {
+                    "type": "array",
+                    "items": {}
+                  }
+                },
+                "required": [
+                  "setup",
+                  "teardown"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sku",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "parameterSets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "uom": {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "description": "The machine settings of the released version. A change cuts a new version and releases it; work orders already released keep theirs"
+          }
+        },
+        "required": [
+          "name",
+          "parameters"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "taskTypes": {
+      "description": "Kinds of work, each with its form, SLAs and gates. People (default assignee, skills) come later",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "isQuote": {
+            "type": "boolean"
+          },
+          "isUserGenerated": {
+            "description": "People can create these tasks from the mobile app",
+            "type": "boolean"
+          },
+          "isRemote": {
+            "description": "Done without visiting a site",
+            "type": "boolean"
+          },
+          "isInventory": {
+            "description": "Moves stock (from / to storage, bin, products)",
+            "type": "boolean"
+          },
+          "isDataRequest": {
+            "description": "Asks a partner company for data",
+            "type": "boolean"
+          },
+          "defaultUseTransit": {
+            "description": "Inventory moves go through the transit bin",
+            "type": "boolean"
+          },
+          "requiresFailureCoding": {
+            "description": "Can't complete without problem / cause / remedy codes (maintenance)",
+            "type": "boolean"
+          },
+          "createdTaskAsReady": {
+            "type": "boolean"
+          },
+          "useSubmittedStatus": {
+            "description": "Completion goes through 'submitted' for review",
+            "type": "boolean"
+          },
+          "allowFieldTakeover": {
+            "type": "boolean"
+          },
+          "recurrenceHours": {
+            "description": "Completing a task schedules the next one this many hours later (time-based PM); 0 = off",
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ssuStatusOnOpen": {
+            "description": "SSU status set when a task of this type opens",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ssuStatusOnComplete": {
+            "description": "SSU status set when it completes",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "workCenter": {
+            "description": "For production operations: the work center that runs it",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "product": {
+            "description": "For production operations: SKU of the product it makes",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outputStorageUnit": {
+            "description": "Where its output goes: \"<site or warehouse> / <storage unit>\"",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "parameterSet": {
+            "description": "Machine parameters shown at the point of work",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "setupMinutes": {
+            "description": "Standard changeover minutes",
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runMinutesPerUnit": {
+            "description": "Standard run minutes per unit",
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "minRank": {
+            "description": "Lowest rank that may do it (0 = anyone)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "team": {
+            "description": "The team whose members see and take its tasks",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "defaultAssignee": {
+            "description": "Email of the person new tasks go to",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "defaultSubcontractor": {
+            "description": "Email of the subcontractor new tasks go to",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requiredSkill": {
+            "description": "Skill needed to do it",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "slas": {
+            "description": "Due time per priority",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "priority": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  ],
+                  "description": "Priority name, or its level where names repeat"
+                },
+                "hours": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "priority",
+                "hours"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "gates": {
+            "description": "Rules a task must meet to move into a status (stage gates); [] removes them",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "open",
+                    "preparation",
+                    "ready",
+                    "dispatched",
+                    "submitted",
+                    "incomplete",
+                    "done",
+                    "declined"
+                  ],
+                  "description": "The gate applies when a task moves into this status"
+                },
+                "requiredFields": {
+                  "description": "Form field titles that must be filled",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "requiredSignature": {
+                  "description": "A signature field must be signed",
+                  "type": "boolean"
+                },
+                "allowedPermissionGroups": {
+                  "description": "Only members of these permission groups may make the move",
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  }
+                },
+                "requiredReferences": {
+                  "description": "Reference types that must be attached",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "form": {
+            "description": "The task's form, in order. Replaces the whole form when given",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "The question; also how gates name the field"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "short_text",
+                    "number",
+                    "checkbox",
+                    "select",
+                    "datetime",
+                    "camera",
+                    "signature",
+                    "location",
+                    "qr",
+                    "segment",
+                    "products",
+                    "storage",
+                    "bin",
+                    "ssus",
+                    "ssu_status",
+                    "tag_chooser",
+                    "tags",
+                    "list",
+                    "target_time"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "options": {
+                  "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
+                  "type": "array",
+                  "items": {}
+                }
+              },
+              "required": [
+                "title",
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "routings": {
+      "description": "Step sequences that work orders follow",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "product": {
+            "description": "SKU of the product it makes (set when created)",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "steps": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "taskType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "The operation's task type"
+                },
+                "blocksNext": {
+                  "description": "A gate: later steps wait for this one when the work order is released",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "taskType"
+              ],
+              "additionalProperties": false
+            },
+            "description": "The released version's steps, in order. A change cuts a new version and releases it; released work orders keep theirs"
+          }
+        },
+        "required": [
+          "name",
+          "steps"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "machineData": {
+      "description": "Per machine: signals, meters, condition rules and spare parts",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ssu": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The machine's path: \"Site / Parent / Name\""
+          },
+          "signals": {
+            "description": "Signals the machine reports: declared ahead of time, or annotated once they arrive. Never removed",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "The signal's key as the machine connector reports it"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "state",
+                    "counter",
+                    "gauge"
+                  ],
+                  "description": "state (running / stopped / …), counter or gauge"
+                },
+                "name": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "uom": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isMeter": {
+                  "description": "A counter that accumulates into a meter (usage-based PM)",
+                  "type": "boolean"
+                },
+                "isRunState": {
+                  "description": "The state signal downtime detection reads (one per machine)",
+                  "type": "boolean"
+                },
+                "runningValue": {
+                  "description": "The run-state value that means running",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "key",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "meters": {
+            "description": "Manual meters (hours, cycles read by people). Signal-fed meters come from signals marked isMeter",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "uom": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "key",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "conditionRules": {
+            "description": "Condition-based maintenance: open a task when a value crosses a limit or a meter advances",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "Unique on this machine"
+                },
+                "mode": {
+                  "description": "threshold: a signal crosses a limit; meter_delta: every N units of a meter",
+                  "type": "string",
+                  "enum": [
+                    "threshold",
+                    "meter_delta"
+                  ]
+                },
+                "signal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Signal key (threshold) or meter key (meter_delta)"
+                },
+                "operator": {
+                  "description": "threshold mode: above (gt) or below (lt)",
+                  "type": "string",
+                  "enum": [
+                    "gt",
+                    "lt"
+                  ]
+                },
+                "threshold": {
+                  "type": "number",
+                  "description": "The limit, or the interval in meter units"
+                },
+                "taskType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "The task type of the task it opens"
+                },
+                "cooldownHours": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "signal",
+                "threshold",
+                "taskType"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "spareParts": {
+            "description": "The machine's spare parts, by product SKU",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sku": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "quantity": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [
+                "sku",
+                "quantity"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "ssu"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "flows": {
+      "description": "Automations: a task's status change creates the next task",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "startsWith": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "The task type that starts the flow (set when the flow is created; one flow per type)"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "taskType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "x": {
+                  "description": "Position on the canvas",
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                },
+                "inheritAssignee": {
+                  "description": "Tasks it creates take the triggering task's assignees",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "taskType"
+              ],
+              "additionalProperties": false
+            },
+            "description": "The task types on the canvas"
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "Task type whose status change triggers"
+                },
+                "to": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "Task type of the task created"
+                },
+                "onStatus": {
+                  "type": "string",
+                  "enum": [
+                    "open",
+                    "preparation",
+                    "ready",
+                    "dispatched",
+                    "submitted",
+                    "incomplete",
+                    "done",
+                    "declined"
+                  ],
+                  "description": "The status that triggers it"
+                }
+              },
+              "required": [
+                "from",
+                "to",
+                "onStatus"
+              ],
+              "additionalProperties": false
+            },
+            "description": "When a task of `from` reaches `onStatus`, a task of `to` is created"
+          }
+        },
+        "required": [
+          "name",
+          "startsWith",
+          "nodes",
+          "edges"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "issues": {
+      "description": "Issue reports people can file (from the app or a QR code)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company: what people pick when they report"
+          },
+          "taskType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "The task type of the task a report opens"
+          },
+          "priority": {
+            "description": "Priority name, or its level",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            ]
+          },
+          "form": {
+            "description": "The report form, in order. Replaces the whole form",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "description": "The question; also how gates name the field"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "short_text",
+                    "number",
+                    "checkbox",
+                    "select",
+                    "datetime",
+                    "camera",
+                    "signature",
+                    "location",
+                    "qr",
+                    "segment",
+                    "products",
+                    "storage",
+                    "bin",
+                    "ssus",
+                    "ssu_status",
+                    "tag_chooser",
+                    "tags",
+                    "list",
+                    "target_time"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "options": {
+                  "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
+                  "type": "array",
+                  "items": {}
+                }
+              },
+              "required": [
+                "title",
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "name",
+          "taskType"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "permissionGroups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "tasks:view_all",
+                "tasks:view_my_teams",
+                "tasks:view_pre_active",
+                "tasks:create",
+                "tasks:delete",
+                "tasks:reassign",
+                "tasks:change_status_mobile",
+                "task_types:view",
+                "task_types:manage",
+                "mobile_builder:view",
+                "mobile_builder:manage",
+                "flows:view",
+                "flows:manage",
+                "clients:view",
+                "clients:manage",
+                "geographic:view",
+                "geographic:manage",
+                "personnel:view",
+                "personnel:manage",
+                "subcontractors:view",
+                "subcontractors:manage",
+                "users:view",
+                "users:manage",
+                "access_requests:approve",
+                "permissions:view",
+                "permissions:manage",
+                "settings:view",
+                "settings:manage",
+                "api_keys:view",
+                "api_keys:manage",
+                "webhooks:manage",
+                "audit_logs:view",
+                "data:export",
+                "data:import",
+                "products:view",
+                "products:manage",
+                "inventory:view",
+                "inventory:manage",
+                "inventory:adjust",
+                "inventory:receive",
+                "production:view",
+                "production:manage",
+                "work_orders:release",
+                "machine_data:view",
+                "machine_data:manage",
+                "maintenance:view",
+                "maintenance:manage",
+                "quality:view",
+                "quality:manage",
+                "ncr:disposition",
+                "documents:view",
+                "documents:manage",
+                "documents:publish",
+                "insights:view",
+                "handoffs:send",
+                "partner_data:request",
+                "partner_data:release",
+                "ai_guidance:manage"
+              ]
+            },
+            "description": "Every permission the group grants (area:verb). The full set: listing replaces it"
+          }
+        },
+        "required": [
+          "name",
+          "permissions"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "roles": {
+      "description": "What people are; each role grants one permission group",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company: what someone is (Technician, Dispatcher, Admin, …)"
+          },
+          "permissionGroup": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "The one permission group the role grants"
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "isOperator": {
+            "type": "boolean"
+          },
+          "isWarehouse": {
+            "type": "boolean"
+          },
+          "isDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "permissionGroup"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "teams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company (case-insensitive)"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Unique in the company"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "people": {
+      "description": "Users already in the company, by email: their roles, teams, skills. Specs never invite",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+            "description": "A user already in the company: specs never invite anyone"
+          },
+          "roles": {
+            "description": "All of the person's roles (at least one): their permissions are the union",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          },
+          "teams": {
+            "description": "All of the person's teams",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          },
+          "skills": {
+            "description": "The person's skill certifications",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "skill": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "certifiedAt": {
+                  "description": "ISO date",
+                  "type": "string"
+                },
+                "expiresAt": {
+                  "description": "ISO date; null = doesn't expire",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "skill"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "subcontractors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+            "description": "Unique in the company"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "companyName": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "expirationDate": {
+            "description": "ISO date their engagement ends",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "address": {
+            "description": "Full address. Used when created; not changed afterwards",
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "email",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "inspectionPlans": {
+      "description": "Which receipts or products must be inspected, and how",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "appliesTo": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "When it applies: receiving (incoming goods) or in_process"
+          },
+          "product": {
+            "description": "SKU of the product it covers",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vendor": {
+            "description": "Vendor it covers",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "taskType": {
+            "description": "The inspection task type",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "samplingRule": {
+            "description": "How many to inspect, e.g. { \"mode\": \"sample\", \"sampleSize\": 5 } or { \"mode\": \"all\" }",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "appliesTo"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "guidance": {
+      "description": "What the company tells every AI agent: company-wide and on specific machines, work centers, products, task types",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "enum": [
+              "company",
+              "ssu",
+              "work_center",
+              "product",
+              "task_type"
+            ]
+          },
+          "ref": {
+            "description": "Which one (not for company): an SSU path (\"Site / Line / Machine\"), a work center name, a product SKU, a task type name",
+            "type": "string"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What every agent should know (company: up to 4000 characters; one subject: 1000)"
+          },
+          "thresholds": {
+            "description": "stopMinutes: a stop longer than this matters; scrapPercent: scrap above this matters",
+            "type": "object",
+            "properties": {
+              "stopMinutes": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "scrapPercent": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "subject",
+          "body"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Unique among its siblings: the SSU's path (site / parent / … / name) is its key"
+        },
+        "status": {
+          "description": "SSU status name (from ssuStatuses, or one the company has)",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "workCenter": {
+          "description": "Work center name",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "criticality": {
+          "description": "1 (low) to 5 (critical)",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "assetClass": {
+          "description": "Free-form grouping, e.g. CNC, press, gauge",
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "make": {
+          "description": "Machine make, from the global machine catalog (factories only); existing spellings are reused",
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "model": {
+          "description": "Machine model of that make (needs a make)",
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sku": {
+          "description": "Model-level SKU / part number (not a serial number)",
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "icon": {
+          "type": "string",
+          "enum": [
+            "cpu",
+            "settings-2",
+            "factory",
+            "flame",
+            "bot",
+            "wrench",
+            "fan",
+            "package",
+            "gauge"
+          ]
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "isDefault": {
+          "description": "The site's default SSU",
+          "type": "boolean"
+        },
+        "children": {
+          "description": "Components (sub-assemblies) of this SSU",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/__schema0"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
