@@ -23,6 +23,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`downtime_events_list`**: Individual downtime events (newest first, up to 500): when each machine stopped, for how long, and the reason code someone classified it with. Use it to explain the totals from analytics.downtime. Filter by machine and window; `unclassifiedOnly` lists stops still waiting for a reason.
 - **`downtime_events_open`** (changes data): Record that a machine stopped now, for machines without telemetry (those report stops themselves). Close it with downtime_events_close when it runs again, and classify it with a reason. Needs 'Manage machine data'.
 - **`downtime_events_summary`**: Recorded stoppages per machine in a window (default: the last 30 days), most stopped time first, each broken down by reason code: the direct answer to "which machines were down most, and why?". Counts only the part of each stop inside the window; a stop still open counts up to the window end. Complements analytics.downtime, which measures time in a DOWN / MAINTENANCE status.
+- **`external_refs_lookup`**: Translate between an outside system's id and an EightyOne record. Send externalId to find the record it stands for, or entityType + entityId to find the record's id in that system. 404 when they aren't linked.
 - **`guide_get`**: EightyOne concepts and how to read the data: the glossary, downtime, maintenance, production, inventory, quality, commissioning, what deserves attention, and this company's own guidance (topic "company"). Without a topic, lists the topics. Read the glossary before working on an unfamiliar area.
 - **`handoffs_decline`** (changes data): Decline a task a partner sent you, with a reason they will see.
 - **`handoffs_send`** (changes data): Hand one of your tasks to another EightyOne company (by its short name, or a partner subcontractor). The partner gets its own copy; your people come off the task. Goods can travel with it (items), and a data-request task carries the scopes it asks for.
@@ -78,6 +79,7 @@ Not listed as tools, to keep the list short. Find them with `capabilities_search
 
 - `data_packages.get`: Get a data package
 - `data_packages.list`: List data packages
+- `external_refs.list`: List external ids
 - `guidance.list`: List company guidance for agents
 - `handoffs.get`: Get a handoff
 - `handoffs.list`: List handoffs

@@ -130,11 +130,13 @@ Capabilities: `config.apply`
 
 View Company settings & integrations
 
+Capabilities: `external_refs.list`, `external_refs.lookup`
+
 ## `settings:manage`
 
 Manage Company settings & integrations
 
-Capabilities: `config.apply`, `teams.create`, `teams.delete`, `teams.update`
+Capabilities: `config.apply`, `external_refs.delete`, `external_refs.upsert`, `teams.create`, `teams.delete`, `teams.update`
 
 ## `api_keys:view`
 

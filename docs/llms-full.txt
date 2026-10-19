@@ -16,6 +16,7 @@ EightyOne runs factories and field-service companies. Everything that happens th
 | **MCP server** (`/mcp`) | AI agents: Claude, Cursor, any MCP client | [Agents and MCP](agents-and-mcp.md) |
 | **The `eightyone` skill** | Agents that set up or run a factory | [Agents and MCP](agents-and-mcp.md#the-skill) |
 | **Webhooks** | Being told when something happens | [Webhooks](webhooks.md), then the [event reference](../reference/events.md) |
+| **External ids** | Connectors that map their own ids to EightyOne records | [Integrations](integrations.md) |
 | **Factory specs** | Setting up a whole company from one file | [Commissioning](commissioning.md) |
 
 The REST API and the MCP server are generated from one registry of capabilities. The same operation has the same name, input, rules and permissions on both, and both are logged the same way.
@@ -511,6 +512,58 @@ Webhooks moved to Standard Webhooks. If you built a receiver before, update it:
 - **Body:** `{ event, eventId, createdAt, data }` is now `{ type, timestamp, data }`. `eventId` is now the `webhook-id` header.
 - **Content:** events carry the API's ids. For example, `task.created` has `task.id` (the external id) and `task.type: { id, name }`, instead of database ids such as `typeId`.
 - **Reliability:** a message is recorded with the change that caused it. A change that's undone sends nothing, and a message is never lost when EightyOne restarts.
+
+---
+
+<!-- https://docs.eightyone.app/guides/integrations.md -->
+
+# Integrations: mapping your ids
+
+**What it is:** when you connect another system (an ERP, an MES, an accounting package) to EightyOne, the same customer, product or order has an id on each side. EightyOne can keep that mapping for you: you link your id to an EightyOne record once, then find either side from the other. Your connector then doesn't need a mapping table of its own.
+
+**Where:** the API's `external_refs.*` capabilities ([reference](../reference/capabilities.md#external-refs)). Looking an id up needs **View company settings & integrations**. Linking and unlinking needs **Manage company settings & integrations**. Agents can look ids up over MCP, but linking is REST-only.
+
+## A link
+
+```json
+{
+    "system": "acme-erp",
+    "externalType": "item",
+    "externalId": "ITEM-77",
+    "entityType": "product",
+    "entityId": "SKU-1001"
+}
+```
+
+- **`system`** names your system. Use a short lowercase slug: `sap`, `netsuite`, `acme-erp`. `quickbooks` and `xero` are used by EightyOne's own integrations.
+- **`externalType`** is the kind of object on your side: `customer`, `item`, `order`, `invoice`. One record can have one id of each type in each system, so a customer and an invoice can both point at the same task.
+- **`externalId`** is your id, up to 255 characters, as you send it.
+- **`entityType`** is the kind of EightyOne record: `client`, `customer`, `vendor`, `product`, `task`, `work_order`, `purchase_order`, `ssu` (machine) or `storage_unit`.
+- **`entityId`** is the record's API id, the same one the rest of the API uses. That's a product's SKU (matched without case), a client's id, a purchase order's number, and the `externalId` of anything else.
+
+## Linking
+
+`PUT /api/v1/external-refs` with the link. Linking is idempotent: sending the same link again only refreshes it (and its `status`, if you send one). Each side maps to one record:
+
+- If your object was linked to another record, it moves to this one.
+- If this record already had a different object of that type in your system, that link is replaced.
+
+`status` is optional, up to 32 characters, and kept as given. Use it for documents EightyOne asked your system to create, such as `draft`, `sent` or `paid`.
+
+## Looking up
+
+- **Your id → EightyOne:** `GET /api/v1/external-refs/lookup?system=acme-erp&externalType=item&externalId=ITEM-77`
+- **EightyOne → your id:** `GET /api/v1/external-refs/lookup?system=acme-erp&externalType=item&entityType=product&entityId=SKU-1001`
+
+Both answer the link, or `404` when there is none. `GET /api/v1/external-refs` lists links, newest first. Filter it by `system` and `externalType`, or by one record (`entityType` + `entityId`) to see every id it has elsewhere.
+
+## Unlinking
+
+`DELETE /api/v1/external-refs/{system}/{externalType}/{externalId}` removes the link only. Neither the EightyOne record nor your object is changed. Every link and unlink is recorded in the audit log.
+
+## What isn't kept
+
+Ids and statuses only. EightyOne keeps no prices, amounts or totals from any system it is connected to.
 
 ---
 
@@ -3309,6 +3362,111 @@ Converges the company's setup to the spec, through the same rules as the dashboa
 | `failed` | object |  |  |
 | `skipped` | integer | yes | Changes not attempted after a failure |
 
+## External refs
+
+### `external_refs.lookup`: Look up an external id
+
+Translate between an outside system's id and an EightyOne record. Send externalId to find the record it stands for, or entityType + entityId to find the record's id in that system. 404 when they aren't linked.
+
+**REST:** `GET /api/v1/external-refs/lookup` · **Permission:** `settings:view` · **Effect:** read · **MCP:** tool `external_refs_lookup`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `externalId` | string |  | The object's id in that system |
+| `entityType` | `client` \| `customer` \| `vendor` \| `product` \| `task` \| `work_order` \| `purchase_order` \| `ssu` \| `storage_unit` |  | The kind of EightyOne record it stands for |
+| `entityId` | string |  | The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `externalType` | string | yes |  |
+| `externalId` | string | yes |  |
+| `entityType` | string | yes |  |
+| `entityId` | string \| null | yes | The record's API id (null if the record has none) |
+| `status` | string \| null | yes | The object's status in that system, for documents EightyOne created there |
+| `syncedAt` | string (date-time) \| null | yes | Last time it was linked or synced |
+| `updatedAt` | string (date-time) | yes |  |
+
+### `external_refs.list`: List external ids
+
+The company's links to outside systems, newest first. Filter by system, externalType, or one record (entityType + entityId) to see every id it has elsewhere.
+
+**REST:** `GET /api/v1/external-refs` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string |  | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string |  | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `entityType` | `client` \| `customer` \| `vendor` \| `product` \| `task` \| `work_order` \| `purchase_order` \| `ssu` \| `storage_unit` |  | The kind of EightyOne record it stands for |
+| `entityId` | string |  | The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId |
+| `limit` | integer |  | Page size (1–100, default 50) |
+| `offset` | integer |  | Rows to skip |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `externalType` | string | yes |  |
+| `externalId` | string | yes |  |
+| `entityType` | string | yes |  |
+| `entityId` | string \| null | yes | The record's API id (null if the record has none) |
+| `status` | string \| null | yes | The object's status in that system, for documents EightyOne created there |
+| `syncedAt` | string (date-time) \| null | yes | Last time it was linked or synced |
+| `updatedAt` | string (date-time) | yes |  |
+
+### `external_refs.upsert`: Link an external id
+
+Map an outside object to an EightyOne record. Idempotent: linking the same pair again only updates status. Each side maps to one: an object already linked elsewhere moves to this record, and the record's previous object of this type in this system is unlinked.
+
+**REST:** `PUT /api/v1/external-refs` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `externalId` | string | yes | The object's id in that system |
+| `entityType` | `client` \| `customer` \| `vendor` \| `product` \| `task` \| `work_order` \| `purchase_order` \| `ssu` \| `storage_unit` | yes | The kind of EightyOne record it stands for |
+| `entityId` | string | yes | The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId |
+| `status` | string \| null |  | The object's status over there (draft, sent, paid…): kept as given |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `externalType` | string | yes |  |
+| `externalId` | string | yes |  |
+| `entityType` | string | yes |  |
+| `entityId` | string \| null | yes | The record's API id (null if the record has none) |
+| `status` | string \| null | yes | The object's status in that system, for documents EightyOne created there |
+| `syncedAt` | string (date-time) \| null | yes | Last time it was linked or synced |
+| `updatedAt` | string (date-time) | yes |  |
+
+### `external_refs.delete`: Unlink an external id
+
+Remove the link between an outside object and its EightyOne record. Neither the record nor the object is touched.
+
+**REST:** `DELETE /api/v1/external-refs/:system/:externalType/:externalId` · **Permission:** `settings:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `externalId` | string | yes | The object's id in that system |
+
 ---
 
 <!-- https://docs.eightyone.app/reference/events.md -->
@@ -4718,11 +4876,13 @@ Capabilities: `config.apply`
 
 View Company settings & integrations
 
+Capabilities: `external_refs.list`, `external_refs.lookup`
+
 ## `settings:manage`
 
 Manage Company settings & integrations
 
-Capabilities: `config.apply`, `teams.create`, `teams.delete`, `teams.update`
+Capabilities: `config.apply`, `external_refs.delete`, `external_refs.upsert`, `teams.create`, `teams.delete`, `teams.update`
 
 ## `api_keys:view`
 
@@ -5011,6 +5171,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`downtime_events_list`**: Individual downtime events (newest first, up to 500): when each machine stopped, for how long, and the reason code someone classified it with. Use it to explain the totals from analytics.downtime. Filter by machine and window; `unclassifiedOnly` lists stops still waiting for a reason.
 - **`downtime_events_open`** (changes data): Record that a machine stopped now, for machines without telemetry (those report stops themselves). Close it with downtime_events_close when it runs again, and classify it with a reason. Needs 'Manage machine data'.
 - **`downtime_events_summary`**: Recorded stoppages per machine in a window (default: the last 30 days), most stopped time first, each broken down by reason code: the direct answer to "which machines were down most, and why?". Counts only the part of each stop inside the window; a stop still open counts up to the window end. Complements analytics.downtime, which measures time in a DOWN / MAINTENANCE status.
+- **`external_refs_lookup`**: Translate between an outside system's id and an EightyOne record. Send externalId to find the record it stands for, or entityType + entityId to find the record's id in that system. 404 when they aren't linked.
 - **`guide_get`**: EightyOne concepts and how to read the data: the glossary, downtime, maintenance, production, inventory, quality, commissioning, what deserves attention, and this company's own guidance (topic "company"). Without a topic, lists the topics. Read the glossary before working on an unfamiliar area.
 - **`handoffs_decline`** (changes data): Decline a task a partner sent you, with a reason they will see.
 - **`handoffs_send`** (changes data): Hand one of your tasks to another EightyOne company (by its short name, or a partner subcontractor). The partner gets its own copy; your people come off the task. Goods can travel with it (items), and a data-request task carries the scopes it asks for.
@@ -5066,6 +5227,7 @@ Not listed as tools, to keep the list short. Find them with `capabilities_search
 
 - `data_packages.get`: Get a data package
 - `data_packages.list`: List data packages
+- `external_refs.list`: List external ids
 - `guidance.list`: List company guidance for agents
 - `handoffs.get`: Get a handoff
 - `handoffs.list`: List handoffs

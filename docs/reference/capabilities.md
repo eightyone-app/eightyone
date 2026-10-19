@@ -2765,3 +2765,108 @@ Converges the company's setup to the spec, through the same rules as the dashboa
 | `applied` | object[] | yes |  |
 | `failed` | object |  |  |
 | `skipped` | integer | yes | Changes not attempted after a failure |
+
+## External refs
+
+### `external_refs.lookup`: Look up an external id
+
+Translate between an outside system's id and an EightyOne record. Send externalId to find the record it stands for, or entityType + entityId to find the record's id in that system. 404 when they aren't linked.
+
+**REST:** `GET /api/v1/external-refs/lookup` · **Permission:** `settings:view` · **Effect:** read · **MCP:** tool `external_refs_lookup`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `externalId` | string |  | The object's id in that system |
+| `entityType` | `client` \| `customer` \| `vendor` \| `product` \| `task` \| `work_order` \| `purchase_order` \| `ssu` \| `storage_unit` |  | The kind of EightyOne record it stands for |
+| `entityId` | string |  | The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `externalType` | string | yes |  |
+| `externalId` | string | yes |  |
+| `entityType` | string | yes |  |
+| `entityId` | string \| null | yes | The record's API id (null if the record has none) |
+| `status` | string \| null | yes | The object's status in that system, for documents EightyOne created there |
+| `syncedAt` | string (date-time) \| null | yes | Last time it was linked or synced |
+| `updatedAt` | string (date-time) | yes |  |
+
+### `external_refs.list`: List external ids
+
+The company's links to outside systems, newest first. Filter by system, externalType, or one record (entityType + entityId) to see every id it has elsewhere.
+
+**REST:** `GET /api/v1/external-refs` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string |  | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string |  | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `entityType` | `client` \| `customer` \| `vendor` \| `product` \| `task` \| `work_order` \| `purchase_order` \| `ssu` \| `storage_unit` |  | The kind of EightyOne record it stands for |
+| `entityId` | string |  | The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId |
+| `limit` | integer |  | Page size (1–100, default 50) |
+| `offset` | integer |  | Rows to skip |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `externalType` | string | yes |  |
+| `externalId` | string | yes |  |
+| `entityType` | string | yes |  |
+| `entityId` | string \| null | yes | The record's API id (null if the record has none) |
+| `status` | string \| null | yes | The object's status in that system, for documents EightyOne created there |
+| `syncedAt` | string (date-time) \| null | yes | Last time it was linked or synced |
+| `updatedAt` | string (date-time) | yes |  |
+
+### `external_refs.upsert`: Link an external id
+
+Map an outside object to an EightyOne record. Idempotent: linking the same pair again only updates status. Each side maps to one: an object already linked elsewhere moves to this record, and the record's previous object of this type in this system is unlinked.
+
+**REST:** `PUT /api/v1/external-refs` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `externalId` | string | yes | The object's id in that system |
+| `entityType` | `client` \| `customer` \| `vendor` \| `product` \| `task` \| `work_order` \| `purchase_order` \| `ssu` \| `storage_unit` | yes | The kind of EightyOne record it stands for |
+| `entityId` | string | yes | The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId |
+| `status` | string \| null |  | The object's status over there (draft, sent, paid…): kept as given |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `externalType` | string | yes |  |
+| `externalId` | string | yes |  |
+| `entityType` | string | yes |  |
+| `entityId` | string \| null | yes | The record's API id (null if the record has none) |
+| `status` | string \| null | yes | The object's status in that system, for documents EightyOne created there |
+| `syncedAt` | string (date-time) \| null | yes | Last time it was linked or synced |
+| `updatedAt` | string (date-time) | yes |  |
+
+### `external_refs.delete`: Unlink an external id
+
+Remove the link between an outside object and its EightyOne record. Neither the record nor the object is touched.
+
+**REST:** `DELETE /api/v1/external-refs/:system/:externalType/:externalId` · **Permission:** `settings:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
+| `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
+| `externalId` | string | yes | The object's id in that system |

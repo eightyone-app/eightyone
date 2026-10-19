@@ -13749,6 +13749,897 @@
         "x-eightyone-dry-run": "n/a"
       }
     },
+    "/api/v1/external-refs": {
+      "get": {
+        "operationId": "external_refs.list",
+        "summary": "List external ids",
+        "description": "The company's links to outside systems, newest first. Filter by system, externalType, or one record (entityType + entityId) to see every id it has elsewhere.\n\nPermission: `settings:view`.",
+        "tags": [
+          "External refs"
+        ],
+        "parameters": [
+          {
+            "name": "system",
+            "in": "query",
+            "required": false,
+            "description": "The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+              "description": "The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes)"
+            }
+          },
+          {
+            "name": "externalType",
+            "in": "query",
+            "required": false,
+            "description": "The kind of object in that system, lowercase: customer, item, invoice, order…",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{1,31}$",
+              "description": "The kind of object in that system, lowercase: customer, item, invoice, order…"
+            }
+          },
+          {
+            "name": "entityType",
+            "in": "query",
+            "required": false,
+            "description": "The kind of EightyOne record it stands for",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "client",
+                "customer",
+                "vendor",
+                "product",
+                "task",
+                "work_order",
+                "purchase_order",
+                "ssu",
+                "storage_unit"
+              ],
+              "description": "The kind of EightyOne record it stands for"
+            }
+          },
+          {
+            "name": "entityId",
+            "in": "query",
+            "required": false,
+            "description": "The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size (1–100, default 50)",
+            "schema": {
+              "default": 50,
+              "description": "Page size (1–100, default 50)",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Rows to skip",
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "system": {
+                            "type": "string"
+                          },
+                          "externalType": {
+                            "type": "string"
+                          },
+                          "externalId": {
+                            "type": "string"
+                          },
+                          "entityType": {
+                            "type": "string"
+                          },
+                          "entityId": {
+                            "description": "The record's API id (null if the record has none)",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "description": "The object's status in that system, for documents EightyOne created there",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "syncedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Last time it was linked or synced"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "system",
+                          "externalType",
+                          "externalId",
+                          "entityType",
+                          "entityId",
+                          "status",
+                          "syncedAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "limit": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "limit",
+                        "offset",
+                        "total",
+                        "hasMore"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "pagination"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "external_refs.list",
+        "x-eightyone-permission": "settings:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      },
+      "put": {
+        "operationId": "external_refs.upsert",
+        "summary": "Link an external id",
+        "description": "Map an outside object to an EightyOne record. Idempotent: linking the same pair again only updates status. Each side maps to one: an object already linked elsewhere moves to this record, and the record's previous object of this type in this system is unlinked.\n\nPermission: `settings:manage`.",
+        "tags": [
+          "External refs"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+                    "description": "The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes)"
+                  },
+                  "externalType": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{1,31}$",
+                    "description": "The kind of object in that system, lowercase: customer, item, invoice, order…"
+                  },
+                  "externalId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "description": "The object's id in that system"
+                  },
+                  "entityType": {
+                    "type": "string",
+                    "enum": [
+                      "client",
+                      "customer",
+                      "vendor",
+                      "product",
+                      "task",
+                      "work_order",
+                      "purchase_order",
+                      "ssu",
+                      "storage_unit"
+                    ],
+                    "description": "The kind of EightyOne record it stands for"
+                  },
+                  "entityId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId"
+                  },
+                  "status": {
+                    "description": "The object's status over there (draft, sent, paid…): kept as given",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 32
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "system",
+                  "externalType",
+                  "externalId",
+                  "entityType",
+                  "entityId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "system": {
+                      "type": "string"
+                    },
+                    "externalType": {
+                      "type": "string"
+                    },
+                    "externalId": {
+                      "type": "string"
+                    },
+                    "entityType": {
+                      "type": "string"
+                    },
+                    "entityId": {
+                      "description": "The record's API id (null if the record has none)",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "description": "The object's status in that system, for documents EightyOne created there",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "syncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Last time it was linked or synced"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "system",
+                    "externalType",
+                    "externalId",
+                    "entityType",
+                    "entityId",
+                    "status",
+                    "syncedAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "external_refs.upsert",
+        "x-eightyone-permission": "settings:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      }
+    },
+    "/api/v1/external-refs/{system}/{externalType}/{externalId}": {
+      "delete": {
+        "operationId": "external_refs.delete",
+        "summary": "Unlink an external id",
+        "description": "Remove the link between an outside object and its EightyOne record. Neither the record nor the object is touched.\n\nPermission: `settings:manage`.",
+        "tags": [
+          "External refs"
+        ],
+        "parameters": [
+          {
+            "name": "system",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+              "description": "The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes)"
+            }
+          },
+          {
+            "name": "externalType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{1,31}$",
+              "description": "The kind of object in that system, lowercase: customer, item, invoice, order…"
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255,
+              "description": "The object's id in that system"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "external_refs.delete",
+        "x-eightyone-permission": "settings:manage",
+        "x-eightyone-effect": "destructive",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      }
+    },
+    "/api/v1/external-refs/lookup": {
+      "get": {
+        "operationId": "external_refs.lookup",
+        "summary": "Look up an external id",
+        "description": "Translate between an outside system's id and an EightyOne record. Send externalId to find the record it stands for, or entityType + entityId to find the record's id in that system. 404 when they aren't linked.\n\nPermission: `settings:view`.",
+        "tags": [
+          "External refs"
+        ],
+        "parameters": [
+          {
+            "name": "system",
+            "in": "query",
+            "required": true,
+            "description": "The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+              "description": "The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes)"
+            }
+          },
+          {
+            "name": "externalType",
+            "in": "query",
+            "required": true,
+            "description": "The kind of object in that system, lowercase: customer, item, invoice, order…",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{1,31}$",
+              "description": "The kind of object in that system, lowercase: customer, item, invoice, order…"
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "query",
+            "required": false,
+            "description": "The object's id in that system",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255,
+              "description": "The object's id in that system"
+            }
+          },
+          {
+            "name": "entityType",
+            "in": "query",
+            "required": false,
+            "description": "The kind of EightyOne record it stands for",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "client",
+                "customer",
+                "vendor",
+                "product",
+                "task",
+                "work_order",
+                "purchase_order",
+                "ssu",
+                "storage_unit"
+              ],
+              "description": "The kind of EightyOne record it stands for"
+            }
+          },
+          {
+            "name": "entityId",
+            "in": "query",
+            "required": false,
+            "description": "The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The record's API id: a client's id, a product's SKU, a purchase order's number, otherwise its externalId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "system": {
+                      "type": "string"
+                    },
+                    "externalType": {
+                      "type": "string"
+                    },
+                    "externalId": {
+                      "type": "string"
+                    },
+                    "entityType": {
+                      "type": "string"
+                    },
+                    "entityId": {
+                      "description": "The record's API id (null if the record has none)",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "description": "The object's status in that system, for documents EightyOne created there",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "syncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Last time it was linked or synced"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "system",
+                    "externalType",
+                    "externalId",
+                    "entityType",
+                    "entityId",
+                    "status",
+                    "syncedAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "external_refs.lookup",
+        "x-eightyone-permission": "settings:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
     "/api/v1/guidance": {
       "get": {
         "operationId": "guidance.list",
