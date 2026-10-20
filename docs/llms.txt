@@ -15,6 +15,7 @@
 - [Commissioning: a company from one file](https://docs.eightyone.app/guides/commissioning.md): Setting up a whole company from one factory spec: export, validate, plan, apply
 - [Webhooks](https://docs.eightyone.app/guides/webhooks.md): Standard Webhooks deliveries, verifying the Ed25519 signature, retries
 - [Integrations: mapping your ids](https://docs.eightyone.app/guides/integrations.md): Mapping another system's ids to EightyOne records: link, look up either way, unlink
+- [Accounting: QuickBooks, Xero and more](https://docs.eightyone.app/guides/accounting.md): QuickBooks and other books: connect, import customers, vendors and products, send estimates, invoices and POs, stock differences
 - [Downloads](https://docs.eightyone.app/guides/downloads.md): The skill (plugin and zip), llms-full.txt, OpenAPI and the spec schema
 
 ## Reference

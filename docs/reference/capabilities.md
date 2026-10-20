@@ -459,7 +459,8 @@ The company's task types: the templates every task is created from (work orders'
 | `id` | string | yes | Task type external id |
 | `typeName` | string | yes |  |
 | `color` | string \| null | yes |  |
-| `isQuote` | boolean | yes |  |
+| `isQuote` | boolean | yes | A done task sends its products and quantities as an estimate to the connected books |
+| `requestInvoiceOnDone` | boolean | yes | A done task sends an invoice request to the connected books |
 | `isUserGenerated` | boolean | yes | Field users may create tasks of this type themselves |
 | `isDataRequest` | boolean | yes | Tasks of this type ask a partner company for traceability data |
 | `isRemote` | boolean | yes |  |
@@ -491,7 +492,8 @@ One task type by its id.
 | `id` | string | yes | Task type external id |
 | `typeName` | string | yes |  |
 | `color` | string \| null | yes |  |
-| `isQuote` | boolean | yes |  |
+| `isQuote` | boolean | yes | A done task sends its products and quantities as an estimate to the connected books |
+| `requestInvoiceOnDone` | boolean | yes | A done task sends an invoice request to the connected books |
 | `isUserGenerated` | boolean | yes | Field users may create tasks of this type themselves |
 | `isDataRequest` | boolean | yes | Tasks of this type ask a partner company for traceability data |
 | `isRemote` | boolean | yes |  |
@@ -2870,3 +2872,194 @@ Remove the link between an outside object and its EightyOne record. Neither the 
 | `system` | string | yes | The outside system, lowercase: quickbooks, xero, or your own slug (sap, netsuite, acme-mes) |
 | `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
 | `externalId` | string | yes | The object's id in that system |
+
+## Accounting
+
+### `accounting.providers`: Accounting providers
+
+The accounting systems EightyOne connects to (QuickBooks, Xero, Sandib), which are available, and the company's current connection (one at a time).
+
+**REST:** `GET /api/v1/accounting/providers` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `name` | string | yes |  |
+| `logoPath` | string \| null | yes | Relative to the API host, e.g. /accounting/logos/xero.svg |
+| `available` | boolean | yes | Connectable today; otherwise coming soon |
+| `connected` | boolean | yes |  |
+
+### `accounting.connect`: Connect the books
+
+Start connecting an accounting system: returns the provider's sign-in page. A person opens it and approves; the provider sends them back to EightyOne's Integrations page. Refused while another provider is connected.
+
+**REST:** `POST /api/v1/accounting/connect` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** not accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `provider` | `quickbooks` \| `xero` \| `sandib` | yes |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `authorizationUrl` | string | yes |  |
+
+### `accounting.test`: Test the books connection
+
+Calls the connected accounting system and returns its company name.
+
+**REST:** `GET /api/v1/accounting/connection/test` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `provider` | string | yes |  |
+| `name` | string \| null | yes |  |
+
+### `accounting.disconnect`: Disconnect the books
+
+Disconnect the accounting system: its tokens are erased and nothing more is sent. Linked ids stay, so reconnecting the same books carries on where it left off.
+
+**REST:** `DELETE /api/v1/accounting/connection` · **Permission:** `settings:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+### `accounting.sync`: Import from the books
+
+Import customers (a factory's customers, a service company's clients), vendors and products from the connected books, by name, SKU and quantity: no prices. Linked records are updated; one with the same name or SKU is linked instead of duplicated. A new tracked product starts with the books' quantity on hand in the default storage.
+
+**REST:** `POST /api/v1/accounting/sync` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `scopes` | `customers` \| `vendors` \| `products`[] |  | What to import (default: all) |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `customers` | object |  |  |
+| `vendors` | object |  |  |
+| `products` | object |  |  |
+| `problems` | string[] | yes | What couldn't be imported, and why (first 50) |
+
+### `accounting.inventory_differences`: Stock: books vs EightyOne
+
+Where the books' quantity on hand differs from EightyOne's, per linked tracked product, largest first. EightyOne counts its own storage (not stock at clients' sites). Reported only: neither side is changed.
+
+**REST:** `GET /api/v1/accounting/inventory-differences` · **Permission:** `inventory:view` · **Effect:** read · **MCP:** tool `accounting_inventory_differences`
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `provider` | string | yes |  |
+| `rows` | object[] | yes |  |
+| `unlinked` | integer | yes | Tracked items in the books not linked to a product |
+
+### `accounting.request_document`: Send a document to the books
+
+Ask the connected books for an invoice (a done task, or a shipped shipment), an estimate (a quote task) or a purchase order (a purchase order). It's queued and sent in the background with retries: products and quantities go over, the books price them. Asking again returns the same document (a failed one is queued again).
+
+**REST:** `POST /api/v1/accounting/documents` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `taskId` | string |  |  |
+| `shipmentId` | string |  |  |
+| `purchaseOrderId` | string |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `provider` | string | yes |  |
+| `providerName` | string | yes |  |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `source` | object | yes |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` | yes | queued: waiting for the worker; sent: created in the books; failed: see error, then retry |
+| `trigger` | string | yes | manual, task_done or po_created |
+| `attempts` | integer | yes |  |
+| `error` | string \| null | yes |  |
+| `number` | string \| null | yes | The document's number in the books |
+| `documentStatus` | string \| null | yes | Its status in the books when it was created |
+| `url` | string \| null | yes | Opens it in the accounting system |
+| `createdAt` | string (date-time) | yes |  |
+| `sentAt` | string (date-time) \| null | yes |  |
+
+### `accounting.list_documents`: Documents sent to the books
+
+Estimates, invoices and purchase orders EightyOne asked the books for, newest first, with their number, status and a link. Filter by one task, shipment or purchase order, or by status (failed ones show why).
+
+**REST:** `GET /api/v1/accounting/documents` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `taskId` | string |  |  |
+| `shipmentId` | string |  |  |
+| `purchaseOrderId` | string |  |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` |  |  |
+| `limit` | integer |  | Page size (1–100, default 50) |
+| `offset` | integer |  | Rows to skip |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `provider` | string | yes |  |
+| `providerName` | string | yes |  |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `source` | object | yes |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` | yes | queued: waiting for the worker; sent: created in the books; failed: see error, then retry |
+| `trigger` | string | yes | manual, task_done or po_created |
+| `attempts` | integer | yes |  |
+| `error` | string \| null | yes |  |
+| `number` | string \| null | yes | The document's number in the books |
+| `documentStatus` | string \| null | yes | Its status in the books when it was created |
+| `url` | string \| null | yes | Opens it in the accounting system |
+| `createdAt` | string (date-time) | yes |  |
+| `sentAt` | string (date-time) \| null | yes |  |
+
+### `accounting.retry_document`: Retry a failed document
+
+Queue a failed document again now, after fixing what its error says (for example, linking a product).
+
+**REST:** `POST /api/v1/accounting/documents/:id/retry` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `provider` | string | yes |  |
+| `providerName` | string | yes |  |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `source` | object | yes |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` | yes | queued: waiting for the worker; sent: created in the books; failed: see error, then retry |
+| `trigger` | string | yes | manual, task_done or po_created |
+| `attempts` | integer | yes |  |
+| `error` | string \| null | yes |  |
+| `number` | string \| null | yes | The document's number in the books |
+| `documentStatus` | string \| null | yes | Its status in the books when it was created |
+| `url` | string \| null | yes | Opens it in the accounting system |
+| `createdAt` | string (date-time) | yes |  |
+| `sentAt` | string (date-time) \| null | yes |  |

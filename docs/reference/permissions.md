@@ -130,13 +130,13 @@ Capabilities: `config.apply`
 
 View Company settings & integrations
 
-Capabilities: `external_refs.list`, `external_refs.lookup`
+Capabilities: `accounting.list_documents`, `accounting.providers`, `accounting.test`, `external_refs.list`, `external_refs.lookup`
 
 ## `settings:manage`
 
 Manage Company settings & integrations
 
-Capabilities: `config.apply`, `external_refs.delete`, `external_refs.upsert`, `teams.create`, `teams.delete`, `teams.update`
+Capabilities: `accounting.connect`, `accounting.disconnect`, `accounting.request_document`, `accounting.retry_document`, `accounting.sync`, `config.apply`, `external_refs.delete`, `external_refs.upsert`, `teams.create`, `teams.delete`, `teams.update`
 
 ## `api_keys:view`
 
@@ -182,7 +182,7 @@ Capabilities: `config.apply`
 
 View Inventory
 
-Capabilities: `customers.list`, `inventory.stock_levels`, `inventory_counts.get`, `inventory_counts.list`, `shipments.get`, `shipments.list`, `stock_transactions.list`, `storage_units.get`, `storage_units.list`
+Capabilities: `accounting.inventory_differences`, `customers.list`, `inventory.stock_levels`, `inventory_counts.get`, `inventory_counts.list`, `shipments.get`, `shipments.list`, `stock_transactions.list`, `storage_units.get`, `storage_units.list`
 
 ## `inventory:manage`
 

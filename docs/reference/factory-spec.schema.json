@@ -866,6 +866,11 @@
             "maxLength": 32
           },
           "isQuote": {
+            "description": "Done tasks send an estimate to the connected books",
+            "type": "boolean"
+          },
+          "requestInvoiceOnDone": {
+            "description": "Done tasks send an invoice request to the connected books",
             "type": "boolean"
           },
           "isUserGenerated": {

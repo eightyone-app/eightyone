@@ -11,6 +11,7 @@ EightyOne runs factories and field-service companies. Everything that happens th
 | **The `eightyone` skill** | Agents that set up or run a factory | [Agents and MCP](agents-and-mcp.md#the-skill) |
 | **Webhooks** | Being told when something happens | [Webhooks](webhooks.md), then the [event reference](../reference/events.md) |
 | **External ids** | Connectors that map their own ids to EightyOne records | [Integrations](integrations.md) |
+| **Accounting** | QuickBooks and other books: customers, products, estimates, invoices, purchase orders | [Accounting](accounting.md) |
 | **Factory specs** | Setting up a whole company from one file | [Commissioning](commissioning.md) |
 
 The REST API and the MCP server are generated from one registry of capabilities. The same operation has the same name, input, rules and permissions on both, and both are logged the same way.

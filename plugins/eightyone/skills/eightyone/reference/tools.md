@@ -6,6 +6,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 
 ## Tools
 
+- **`accounting_inventory_differences`**: Where the books' quantity on hand differs from EightyOne's, per linked tracked product, largest first. EightyOne counts its own storage (not stock at clients' sites). Reported only: neither side is changed.
 - **`analytics_downtime`**: Time each machine (SSU) spent DOWN or in MAINTENANCE in the window, most first, with how many times it entered that state. For the reasons, follow up with downtime_events.list (reason-coded stoppages) or storylines.ssu (the machine's story).
 - **`analytics_failure_pareto`**: What breaks most: completed failure-coded tasks grouped by problem code, most frequent first (top 25), with the machine that suffers each mode most.
 - **`analytics_oee`**: Overall equipment effectiveness per machine: availability, performance and quality (0–1) with good / scrap quantities. A factor is null when its source data is missing (no routed work, no counts).
@@ -77,6 +78,9 @@ Every tool acts as the connected user, in one company, with that user's permissi
 
 Not listed as tools, to keep the list short. Find them with `capabilities_search` and run them with `capabilities_call` (pass the name below).
 
+- `accounting.list_documents`: Documents sent to the books
+- `accounting.providers`: Accounting providers
+- `accounting.test`: Test the books connection
 - `data_packages.get`: Get a data package
 - `data_packages.list`: List data packages
 - `external_refs.list`: List external ids

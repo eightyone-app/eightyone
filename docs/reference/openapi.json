@@ -71,6 +71,1781 @@
     }
   },
   "paths": {
+    "/api/v1/accounting/connect": {
+      "post": {
+        "operationId": "accounting.connect",
+        "summary": "Connect the books",
+        "description": "Start connecting an accounting system: returns the provider's sign-in page. A person opens it and approves; the provider sends them back to EightyOne's Integrations page. Refused while another provider is connected.\n\nPermission: `settings:manage`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "quickbooks",
+                      "xero",
+                      "sandib"
+                    ]
+                  }
+                },
+                "required": [
+                  "provider"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authorizationUrl": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "authorizationUrl"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.connect",
+        "x-eightyone-permission": "settings:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "unsupported"
+      }
+    },
+    "/api/v1/accounting/connection": {
+      "delete": {
+        "operationId": "accounting.disconnect",
+        "summary": "Disconnect the books",
+        "description": "Disconnect the accounting system: its tokens are erased and nothing more is sent. Linked ids stay, so reconnecting the same books carries on where it left off.\n\nPermission: `settings:manage`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.disconnect",
+        "x-eightyone-permission": "settings:manage",
+        "x-eightyone-effect": "destructive",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "unsupported"
+      }
+    },
+    "/api/v1/accounting/connection/test": {
+      "get": {
+        "operationId": "accounting.test",
+        "summary": "Test the books connection",
+        "description": "Calls the connected accounting system and returns its company name.\n\nPermission: `settings:view`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "provider",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.test",
+        "x-eightyone-permission": "settings:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
+    "/api/v1/accounting/documents": {
+      "post": {
+        "operationId": "accounting.request_document",
+        "summary": "Send a document to the books",
+        "description": "Ask the connected books for an invoice (a done task, or a shipped shipment), an estimate (a quote task) or a purchase order (a purchase order). It's queued and sent in the background with retries: products and quantities go over, the books price them. Asking again returns the same document (a failed one is queued again).\n\nPermission: `settings:manage`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "estimate",
+                      "invoice",
+                      "purchase_order"
+                    ]
+                  },
+                  "taskId": {
+                    "type": "string"
+                  },
+                  "shipmentId": {
+                    "type": "string"
+                  },
+                  "purchaseOrderId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "providerName": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "estimate",
+                        "invoice",
+                        "purchase_order"
+                      ]
+                    },
+                    "source": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "task",
+                            "shipment",
+                            "purchase_order"
+                          ]
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "The task's or shipment's external id, or the purchase order's number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "id"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "sending",
+                        "sent",
+                        "failed"
+                      ],
+                      "description": "queued: waiting for the worker; sent: created in the books; failed: see error, then retry"
+                    },
+                    "trigger": {
+                      "type": "string",
+                      "description": "manual, task_done or po_created"
+                    },
+                    "attempts": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "error": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "number": {
+                      "description": "The document's number in the books",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "documentStatus": {
+                      "description": "Its status in the books when it was created",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "url": {
+                      "description": "Opens it in the accounting system",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "sentAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "provider",
+                    "providerName",
+                    "kind",
+                    "source",
+                    "status",
+                    "trigger",
+                    "attempts",
+                    "error",
+                    "number",
+                    "documentStatus",
+                    "url",
+                    "createdAt",
+                    "sentAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.request_document",
+        "x-eightyone-permission": "settings:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      },
+      "get": {
+        "operationId": "accounting.list_documents",
+        "summary": "Documents sent to the books",
+        "description": "Estimates, invoices and purchase orders EightyOne asked the books for, newest first, with their number, status and a link. Filter by one task, shipment or purchase order, or by status (failed ones show why).\n\nPermission: `settings:view`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "shipmentId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "purchaseOrderId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "queued",
+                "sending",
+                "sent",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size (1–100, default 50)",
+            "schema": {
+              "default": 50,
+              "description": "Page size (1–100, default 50)",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Rows to skip",
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "provider": {
+                            "type": "string"
+                          },
+                          "providerName": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "estimate",
+                              "invoice",
+                              "purchase_order"
+                            ]
+                          },
+                          "source": {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "task",
+                                  "shipment",
+                                  "purchase_order"
+                                ]
+                              },
+                              "id": {
+                                "type": "string",
+                                "description": "The task's or shipment's external id, or the purchase order's number"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "queued",
+                              "sending",
+                              "sent",
+                              "failed"
+                            ],
+                            "description": "queued: waiting for the worker; sent: created in the books; failed: see error, then retry"
+                          },
+                          "trigger": {
+                            "type": "string",
+                            "description": "manual, task_done or po_created"
+                          },
+                          "attempts": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "error": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "number": {
+                            "description": "The document's number in the books",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "documentStatus": {
+                            "description": "Its status in the books when it was created",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "url": {
+                            "description": "Opens it in the accounting system",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "sentAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "provider",
+                          "providerName",
+                          "kind",
+                          "source",
+                          "status",
+                          "trigger",
+                          "attempts",
+                          "error",
+                          "number",
+                          "documentStatus",
+                          "url",
+                          "createdAt",
+                          "sentAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "limit": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "limit",
+                        "offset",
+                        "total",
+                        "hasMore"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "pagination"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.list_documents",
+        "x-eightyone-permission": "settings:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
+    "/api/v1/accounting/documents/{id}/retry": {
+      "post": {
+        "operationId": "accounting.retry_document",
+        "summary": "Retry a failed document",
+        "description": "Queue a failed document again now, after fixing what its error says (for example, linking a product).\n\nPermission: `settings:manage`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "providerName": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "estimate",
+                        "invoice",
+                        "purchase_order"
+                      ]
+                    },
+                    "source": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "task",
+                            "shipment",
+                            "purchase_order"
+                          ]
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "The task's or shipment's external id, or the purchase order's number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "id"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "sending",
+                        "sent",
+                        "failed"
+                      ],
+                      "description": "queued: waiting for the worker; sent: created in the books; failed: see error, then retry"
+                    },
+                    "trigger": {
+                      "type": "string",
+                      "description": "manual, task_done or po_created"
+                    },
+                    "attempts": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "error": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "number": {
+                      "description": "The document's number in the books",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "documentStatus": {
+                      "description": "Its status in the books when it was created",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "url": {
+                      "description": "Opens it in the accounting system",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "sentAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "provider",
+                    "providerName",
+                    "kind",
+                    "source",
+                    "status",
+                    "trigger",
+                    "attempts",
+                    "error",
+                    "number",
+                    "documentStatus",
+                    "url",
+                    "createdAt",
+                    "sentAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.retry_document",
+        "x-eightyone-permission": "settings:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "unsupported"
+      }
+    },
+    "/api/v1/accounting/inventory-differences": {
+      "get": {
+        "operationId": "accounting.inventory_differences",
+        "summary": "Stock: books vs EightyOne",
+        "description": "Where the books' quantity on hand differs from EightyOne's, per linked tracked product, largest first. EightyOne counts its own storage (not stock at clients' sites). Reported only: neither side is changed.\n\nPermission: `inventory:view`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string"
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sku": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "booksQuantity": {
+                            "type": "number"
+                          },
+                          "eightyoneQuantity": {
+                            "type": "number"
+                          },
+                          "difference": {
+                            "type": "number",
+                            "description": "EightyOne minus the books"
+                          }
+                        },
+                        "required": [
+                          "sku",
+                          "name",
+                          "booksQuantity",
+                          "eightyoneQuantity",
+                          "difference"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "unlinked": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "Tracked items in the books not linked to a product"
+                    }
+                  },
+                  "required": [
+                    "provider",
+                    "rows",
+                    "unlinked"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.inventory_differences",
+        "x-eightyone-permission": "inventory:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
+    "/api/v1/accounting/providers": {
+      "get": {
+        "operationId": "accounting.providers",
+        "summary": "Accounting providers",
+        "description": "The accounting systems EightyOne connects to (QuickBooks, Xero, Sandib), which are available, and the company's current connection (one at a time).\n\nPermission: `settings:view`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "logoPath": {
+                            "description": "Relative to the API host, e.g. /accounting/logos/xero.svg",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "available": {
+                            "type": "boolean",
+                            "description": "Connectable today; otherwise coming soon"
+                          },
+                          "connected": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "logoPath",
+                          "available",
+                          "connected"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "connection": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "provider": {
+                              "type": "string"
+                            },
+                            "tenantName": {
+                              "description": "The connected books' company name",
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "sandbox": {
+                              "type": "boolean"
+                            },
+                            "connectedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "provider",
+                            "tenantName",
+                            "sandbox",
+                            "connectedAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "connection"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.providers",
+        "x-eightyone-permission": "settings:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
+    "/api/v1/accounting/sync": {
+      "post": {
+        "operationId": "accounting.sync",
+        "summary": "Import from the books",
+        "description": "Import customers (a factory's customers, a service company's clients), vendors and products from the connected books, by name, SKU and quantity: no prices. Linked records are updated; one with the same name or SKU is linked instead of duplicated. A new tracked product starts with the books' quantity on hand in the default storage.\n\nPermission: `settings:manage`.",
+        "tags": [
+          "Accounting"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scopes": {
+                    "description": "What to import (default: all)",
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "customers",
+                        "vendors",
+                        "products"
+                      ]
+                    }
+                  }
+                },
+                "additionalProperties": false,
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customers": {
+                      "type": "object",
+                      "properties": {
+                        "created": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "linked": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991,
+                          "description": "Matched to an existing record by name or SKU, and linked"
+                        },
+                        "updated": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "into": {
+                          "type": "string",
+                          "enum": [
+                            "customers",
+                            "clients"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "created",
+                        "linked",
+                        "updated",
+                        "skipped",
+                        "into"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "vendors": {
+                      "type": "object",
+                      "properties": {
+                        "created": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "linked": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991,
+                          "description": "Matched to an existing record by name or SKU, and linked"
+                        },
+                        "updated": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "created",
+                        "linked",
+                        "updated",
+                        "skipped"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "products": {
+                      "type": "object",
+                      "properties": {
+                        "created": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "linked": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991,
+                          "description": "Matched to an existing record by name or SKU, and linked"
+                        },
+                        "updated": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "stockImported": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "created",
+                        "linked",
+                        "updated",
+                        "skipped",
+                        "stockImported"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "problems": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "What couldn't be imported, and why (first 50)"
+                    }
+                  },
+                  "required": [
+                    "problems"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "accounting.sync",
+        "x-eightyone-permission": "settings:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "unsupported"
+      }
+    },
     "/api/v1/analytics/downtime": {
       "get": {
         "operationId": "analytics.downtime",
@@ -3116,6 +4891,11 @@
                               "maxLength": 32
                             },
                             "isQuote": {
+                              "description": "Done tasks send an estimate to the connected books",
+                              "type": "boolean"
+                            },
+                            "requestInvoiceOnDone": {
+                              "description": "Done tasks send an invoice request to the connected books",
                               "type": "boolean"
                             },
                             "isUserGenerated": {
@@ -5642,6 +7422,11 @@
                             "maxLength": 32
                           },
                           "isQuote": {
+                            "description": "Done tasks send an estimate to the connected books",
+                            "type": "boolean"
+                          },
+                          "requestInvoiceOnDone": {
+                            "description": "Done tasks send an invoice request to the connected books",
                             "type": "boolean"
                           },
                           "isUserGenerated": {
@@ -7987,6 +9772,11 @@
                               "maxLength": 32
                             },
                             "isQuote": {
+                              "description": "Done tasks send an estimate to the connected books",
+                              "type": "boolean"
+                            },
+                            "requestInvoiceOnDone": {
+                              "description": "Done tasks send an invoice request to the connected books",
                               "type": "boolean"
                             },
                             "isUserGenerated": {
@@ -10523,6 +12313,11 @@
                               "maxLength": 32
                             },
                             "isQuote": {
+                              "description": "Done tasks send an estimate to the connected books",
+                              "type": "boolean"
+                            },
+                            "requestInvoiceOnDone": {
+                              "description": "Done tasks send an invoice request to the connected books",
                               "type": "boolean"
                             },
                             "isUserGenerated": {
@@ -26340,7 +28135,12 @@
                             ]
                           },
                           "isQuote": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "A done task sends its products and quantities as an estimate to the connected books"
+                          },
+                          "requestInvoiceOnDone": {
+                            "type": "boolean",
+                            "description": "A done task sends an invoice request to the connected books"
                           },
                           "isUserGenerated": {
                             "type": "boolean",
@@ -26426,6 +28226,7 @@
                           "typeName",
                           "color",
                           "isQuote",
+                          "requestInvoiceOnDone",
                           "isUserGenerated",
                           "isDataRequest",
                           "isRemote",
@@ -26600,7 +28401,12 @@
                       ]
                     },
                     "isQuote": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "A done task sends its products and quantities as an estimate to the connected books"
+                    },
+                    "requestInvoiceOnDone": {
+                      "type": "boolean",
+                      "description": "A done task sends an invoice request to the connected books"
                     },
                     "isUserGenerated": {
                       "type": "boolean",
@@ -26686,6 +28492,7 @@
                     "typeName",
                     "color",
                     "isQuote",
+                    "requestInvoiceOnDone",
                     "isUserGenerated",
                     "isDataRequest",
                     "isRemote",

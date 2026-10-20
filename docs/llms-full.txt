@@ -17,6 +17,7 @@ EightyOne runs factories and field-service companies. Everything that happens th
 | **The `eightyone` skill** | Agents that set up or run a factory | [Agents and MCP](agents-and-mcp.md#the-skill) |
 | **Webhooks** | Being told when something happens | [Webhooks](webhooks.md), then the [event reference](../reference/events.md) |
 | **External ids** | Connectors that map their own ids to EightyOne records | [Integrations](integrations.md) |
+| **Accounting** | QuickBooks and other books: customers, products, estimates, invoices, purchase orders | [Accounting](accounting.md) |
 | **Factory specs** | Setting up a whole company from one file | [Commissioning](commissioning.md) |
 
 The REST API and the MCP server are generated from one registry of capabilities. The same operation has the same name, input, rules and permissions on both, and both are logged the same way.
@@ -567,6 +568,66 @@ Ids and statuses only. EightyOne keeps no prices, amounts or totals from any sys
 
 ---
 
+<!-- https://docs.eightyone.app/guides/accounting.md -->
+
+# Accounting: QuickBooks, Xero and more
+
+**What it is:** EightyOne connects to a company's accounting system ("the books"). The books stay the place where money lives, and EightyOne never holds a price, a cost or a total. What moves between them is names, ids and quantities:
+
+- **From the books:** customers, vendors and products, and the quantities on hand of tracked items.
+- **To the books:** estimates, invoices and purchase orders, as items and quantities. The books price them.
+
+**Providers:** QuickBooks today. Xero and others are coming. `accounting.providers` lists them all, with which ones are available. A company connects one at a time.
+
+**Who:** connecting, importing and sending documents need **Manage company settings & integrations**. Seeing the connection and the documents needs **View company settings & integrations**. The stock comparison needs **View inventory**.
+
+## Connecting
+
+1. `accounting.connect` with the provider returns its sign-in page (`authorizationUrl`).
+2. A person opens it, signs in to their books and approves.
+3. The provider sends them back to EightyOne's **Integrations** page, connected.
+
+An agent can't approve for the company. It can only hand the link to a person. `accounting.test` answers with the books' company name. `accounting.disconnect` erases the stored tokens. Ids already linked are kept, so reconnecting the same books carries on where it left off. Connecting *different* books unlinks the old ids, because they mean nothing in the new books.
+
+## Importing
+
+`accounting.sync` imports `customers`, `vendors` and `products` (all three by default):
+
+- **Customers** become a factory's **customers**, or a managed-services company's **clients**.
+- A record already linked to the books is updated (its name, and a product's description and SKU).
+- A record with the same name, or a product with the same SKU, is **linked** rather than duplicated.
+- Everything else is created and linked. Nothing is deleted because it's gone from the books.
+- A new tracked product starts with the books' quantity on hand, in the company's default storage.
+
+The reply counts what was created, linked, updated and skipped, and lists problems: a SKU two items share, a quantity that isn't whole. Every link is an [external ref](integrations.md), so `external_refs.lookup` translates in both directions.
+
+## Documents
+
+| Document | From | Sent when |
+| --- | --- | --- |
+| Estimate | A quote task (task type **is quote**) | The task is done, or someone asks |
+| Invoice | A done task, or a shipped shipment (factories) | Someone asks, or the task's type has **Request an invoice when done** |
+| Purchase order | A purchase order | It's created |
+
+Asking is `accounting.request_document` with the `kind` and one of `taskId`, `shipmentId` or `purchaseOrderId`. Documents are queued and sent in the background, so completing a task never waits on the books. A failure is retried later: after 1 minute, then 5, 30 and 120, then once more after 12 hours. A refusal that won't change on its own fails at once with the reason, for example a product that isn't linked to an item.
+
+- **One per source:** asking again returns the same document, and asking again for a failed one queues it again. `accounting.retry_document` does the same by id.
+- **What goes over:** the customer or vendor, each product as its item in the books, and the quantities. A task's quantities are what was recorded on its form (parts removed or only counted aren't billed). A shipment's are its lines, a PO's are its lines. Each document is marked with EightyOne's reference ("Fix press (task id)", "PO 12: Restock").
+- **What comes back:** the document's number, its status in the books, and a link that opens it there. `accounting.list_documents` lists them, by task, shipment, purchase order or status.
+
+If the company's setting **Send invoices and quotes automatically** is on, the books also email each new estimate and invoice to the customer.
+
+## Stock
+
+The books own the **capitalized inventory**: what the stock is worth. EightyOne owns the **operational inventory**: what is where, by unit, bin, lot and serial. `accounting.inventory_differences` compares, item by item, the books' quantity on hand with EightyOne's stock in the company's own storage. It lists the largest differences first. Nothing is changed on either side: the report is for a person to decide.
+
+## What is never kept
+
+- **No amounts.** Some providers need a price on every line to accept a document. EightyOne reads the item's own price from the books for that one request and never stores, logs or returns it. Error messages from the books are stored with any amount cut out.
+- **No passwords.** The connection keeps the provider's refresh token, encrypted, and nothing else.
+
+---
+
 <!-- https://docs.eightyone.app/guides/downloads.md -->
 
 # Downloads
@@ -1055,7 +1116,8 @@ The company's task types: the templates every task is created from (work orders'
 | `id` | string | yes | Task type external id |
 | `typeName` | string | yes |  |
 | `color` | string \| null | yes |  |
-| `isQuote` | boolean | yes |  |
+| `isQuote` | boolean | yes | A done task sends its products and quantities as an estimate to the connected books |
+| `requestInvoiceOnDone` | boolean | yes | A done task sends an invoice request to the connected books |
 | `isUserGenerated` | boolean | yes | Field users may create tasks of this type themselves |
 | `isDataRequest` | boolean | yes | Tasks of this type ask a partner company for traceability data |
 | `isRemote` | boolean | yes |  |
@@ -1087,7 +1149,8 @@ One task type by its id.
 | `id` | string | yes | Task type external id |
 | `typeName` | string | yes |  |
 | `color` | string \| null | yes |  |
-| `isQuote` | boolean | yes |  |
+| `isQuote` | boolean | yes | A done task sends its products and quantities as an estimate to the connected books |
+| `requestInvoiceOnDone` | boolean | yes | A done task sends an invoice request to the connected books |
 | `isUserGenerated` | boolean | yes | Field users may create tasks of this type themselves |
 | `isDataRequest` | boolean | yes | Tasks of this type ask a partner company for traceability data |
 | `isRemote` | boolean | yes |  |
@@ -3467,6 +3530,197 @@ Remove the link between an outside object and its EightyOne record. Neither the 
 | `externalType` | string | yes | The kind of object in that system, lowercase: customer, item, invoice, order… |
 | `externalId` | string | yes | The object's id in that system |
 
+## Accounting
+
+### `accounting.providers`: Accounting providers
+
+The accounting systems EightyOne connects to (QuickBooks, Xero, Sandib), which are available, and the company's current connection (one at a time).
+
+**REST:** `GET /api/v1/accounting/providers` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `name` | string | yes |  |
+| `logoPath` | string \| null | yes | Relative to the API host, e.g. /accounting/logos/xero.svg |
+| `available` | boolean | yes | Connectable today; otherwise coming soon |
+| `connected` | boolean | yes |  |
+
+### `accounting.connect`: Connect the books
+
+Start connecting an accounting system: returns the provider's sign-in page. A person opens it and approves; the provider sends them back to EightyOne's Integrations page. Refused while another provider is connected.
+
+**REST:** `POST /api/v1/accounting/connect` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** not accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `provider` | `quickbooks` \| `xero` \| `sandib` | yes |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `authorizationUrl` | string | yes |  |
+
+### `accounting.test`: Test the books connection
+
+Calls the connected accounting system and returns its company name.
+
+**REST:** `GET /api/v1/accounting/connection/test` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `provider` | string | yes |  |
+| `name` | string \| null | yes |  |
+
+### `accounting.disconnect`: Disconnect the books
+
+Disconnect the accounting system: its tokens are erased and nothing more is sent. Linked ids stay, so reconnecting the same books carries on where it left off.
+
+**REST:** `DELETE /api/v1/accounting/connection` · **Permission:** `settings:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+### `accounting.sync`: Import from the books
+
+Import customers (a factory's customers, a service company's clients), vendors and products from the connected books, by name, SKU and quantity: no prices. Linked records are updated; one with the same name or SKU is linked instead of duplicated. A new tracked product starts with the books' quantity on hand in the default storage.
+
+**REST:** `POST /api/v1/accounting/sync` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `scopes` | `customers` \| `vendors` \| `products`[] |  | What to import (default: all) |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `customers` | object |  |  |
+| `vendors` | object |  |  |
+| `products` | object |  |  |
+| `problems` | string[] | yes | What couldn't be imported, and why (first 50) |
+
+### `accounting.inventory_differences`: Stock: books vs EightyOne
+
+Where the books' quantity on hand differs from EightyOne's, per linked tracked product, largest first. EightyOne counts its own storage (not stock at clients' sites). Reported only: neither side is changed.
+
+**REST:** `GET /api/v1/accounting/inventory-differences` · **Permission:** `inventory:view` · **Effect:** read · **MCP:** tool `accounting_inventory_differences`
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `provider` | string | yes |  |
+| `rows` | object[] | yes |  |
+| `unlinked` | integer | yes | Tracked items in the books not linked to a product |
+
+### `accounting.request_document`: Send a document to the books
+
+Ask the connected books for an invoice (a done task, or a shipped shipment), an estimate (a quote task) or a purchase order (a purchase order). It's queued and sent in the background with retries: products and quantities go over, the books price them. Asking again returns the same document (a failed one is queued again).
+
+**REST:** `POST /api/v1/accounting/documents` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `taskId` | string |  |  |
+| `shipmentId` | string |  |  |
+| `purchaseOrderId` | string |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `provider` | string | yes |  |
+| `providerName` | string | yes |  |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `source` | object | yes |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` | yes | queued: waiting for the worker; sent: created in the books; failed: see error, then retry |
+| `trigger` | string | yes | manual, task_done or po_created |
+| `attempts` | integer | yes |  |
+| `error` | string \| null | yes |  |
+| `number` | string \| null | yes | The document's number in the books |
+| `documentStatus` | string \| null | yes | Its status in the books when it was created |
+| `url` | string \| null | yes | Opens it in the accounting system |
+| `createdAt` | string (date-time) | yes |  |
+| `sentAt` | string (date-time) \| null | yes |  |
+
+### `accounting.list_documents`: Documents sent to the books
+
+Estimates, invoices and purchase orders EightyOne asked the books for, newest first, with their number, status and a link. Filter by one task, shipment or purchase order, or by status (failed ones show why).
+
+**REST:** `GET /api/v1/accounting/documents` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `taskId` | string |  |  |
+| `shipmentId` | string |  |  |
+| `purchaseOrderId` | string |  |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` |  |  |
+| `limit` | integer |  | Page size (1–100, default 50) |
+| `offset` | integer |  | Rows to skip |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `provider` | string | yes |  |
+| `providerName` | string | yes |  |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `source` | object | yes |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` | yes | queued: waiting for the worker; sent: created in the books; failed: see error, then retry |
+| `trigger` | string | yes | manual, task_done or po_created |
+| `attempts` | integer | yes |  |
+| `error` | string \| null | yes |  |
+| `number` | string \| null | yes | The document's number in the books |
+| `documentStatus` | string \| null | yes | Its status in the books when it was created |
+| `url` | string \| null | yes | Opens it in the accounting system |
+| `createdAt` | string (date-time) | yes |  |
+| `sentAt` | string (date-time) \| null | yes |  |
+
+### `accounting.retry_document`: Retry a failed document
+
+Queue a failed document again now, after fixing what its error says (for example, linking a product).
+
+**REST:** `POST /api/v1/accounting/documents/:id/retry` · **Permission:** `settings:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `provider` | string | yes |  |
+| `providerName` | string | yes |  |
+| `kind` | `estimate` \| `invoice` \| `purchase_order` | yes |  |
+| `source` | object | yes |  |
+| `status` | `queued` \| `sending` \| `sent` \| `failed` | yes | queued: waiting for the worker; sent: created in the books; failed: see error, then retry |
+| `trigger` | string | yes | manual, task_done or po_created |
+| `attempts` | integer | yes |  |
+| `error` | string \| null | yes |  |
+| `number` | string \| null | yes | The document's number in the books |
+| `documentStatus` | string \| null | yes | Its status in the books when it was created |
+| `url` | string \| null | yes | Opens it in the accounting system |
+| `createdAt` | string (date-time) | yes |  |
+| `sentAt` | string (date-time) \| null | yes |  |
+
 ---
 
 <!-- https://docs.eightyone.app/reference/events.md -->
@@ -4876,13 +5130,13 @@ Capabilities: `config.apply`
 
 View Company settings & integrations
 
-Capabilities: `external_refs.list`, `external_refs.lookup`
+Capabilities: `accounting.list_documents`, `accounting.providers`, `accounting.test`, `external_refs.list`, `external_refs.lookup`
 
 ## `settings:manage`
 
 Manage Company settings & integrations
 
-Capabilities: `config.apply`, `external_refs.delete`, `external_refs.upsert`, `teams.create`, `teams.delete`, `teams.update`
+Capabilities: `accounting.connect`, `accounting.disconnect`, `accounting.request_document`, `accounting.retry_document`, `accounting.sync`, `config.apply`, `external_refs.delete`, `external_refs.upsert`, `teams.create`, `teams.delete`, `teams.update`
 
 ## `api_keys:view`
 
@@ -4928,7 +5182,7 @@ Capabilities: `config.apply`
 
 View Inventory
 
-Capabilities: `customers.list`, `inventory.stock_levels`, `inventory_counts.get`, `inventory_counts.list`, `shipments.get`, `shipments.list`, `stock_transactions.list`, `storage_units.get`, `storage_units.list`
+Capabilities: `accounting.inventory_differences`, `customers.list`, `inventory.stock_levels`, `inventory_counts.get`, `inventory_counts.list`, `shipments.get`, `shipments.list`, `stock_transactions.list`, `storage_units.get`, `storage_units.list`
 
 ## `inventory:manage`
 
@@ -5154,6 +5408,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 
 ## Tools
 
+- **`accounting_inventory_differences`**: Where the books' quantity on hand differs from EightyOne's, per linked tracked product, largest first. EightyOne counts its own storage (not stock at clients' sites). Reported only: neither side is changed.
 - **`analytics_downtime`**: Time each machine (SSU) spent DOWN or in MAINTENANCE in the window, most first, with how many times it entered that state. For the reasons, follow up with downtime_events.list (reason-coded stoppages) or storylines.ssu (the machine's story).
 - **`analytics_failure_pareto`**: What breaks most: completed failure-coded tasks grouped by problem code, most frequent first (top 25), with the machine that suffers each mode most.
 - **`analytics_oee`**: Overall equipment effectiveness per machine: availability, performance and quality (0–1) with good / scrap quantities. A factor is null when its source data is missing (no routed work, no counts).
@@ -5225,6 +5480,9 @@ Every tool acts as the connected user, in one company, with that user's permissi
 
 Not listed as tools, to keep the list short. Find them with `capabilities_search` and run them with `capabilities_call` (pass the name below).
 
+- `accounting.list_documents`: Documents sent to the books
+- `accounting.providers`: Accounting providers
+- `accounting.test`: Test the books connection
 - `data_packages.get`: Get a data package
 - `data_packages.list`: List data packages
 - `external_refs.list`: List external ids
