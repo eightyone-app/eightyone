@@ -1527,7 +1527,7 @@ The stock movement ledger (consumption, receipts, transfers, shipments), newest 
 | `id` | integer | yes |  |
 | `time` | string (date-time) | yes |  |
 | `quantity` | number | yes |  |
-| `bin` | string \| null | yes | goods, bads, installed, transit, quarantine |
+| `bin` | string \| null | yes | goods, bads, in_use, transit, quarantine |
 | `itemId` | integer \| null | yes | Line item (unit) id |
 | `fromStorageUnitId` | integer \| null | yes |  |
 | `toStorageUnitId` | integer \| null | yes |  |

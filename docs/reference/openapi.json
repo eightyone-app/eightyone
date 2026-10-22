@@ -26766,7 +26766,7 @@
                             "type": "number"
                           },
                           "bin": {
-                            "description": "goods, bads, installed, transit, quarantine",
+                            "description": "goods, bads, in_use, transit, quarantine",
                             "type": [
                               "string",
                               "null"
