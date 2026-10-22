@@ -12,7 +12,7 @@
       "name": "eightyone",
       "source": "./plugins/eightyone",
       "description": "Work with EightyOne (factory and field-service operations) through its MCP server: commission a factory from a template, configure task types and forms, run the floor, and analyze machines, downtime, maintenance, work orders, inventory and quality.",
-      "version": "2026.1020.9",
+      "version": "2026.1022.10",
       "homepage": "https://docs.eightyone.app"
     }
   ]
