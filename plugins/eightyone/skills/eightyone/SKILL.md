@@ -2,7 +2,7 @@
 name: eightyone
 description: Work with EightyOne (factory and field-service operations) through its MCP server. Commission a factory from a template, model production lines, configure task types and forms, and run the floor day to day (release work, complete tasks with their forms, NCRs, stops, stock). Also answer questions about machines, downtime, maintenance, work orders, inventory and quality. Use it whenever the user mentions EightyOne, or asks to set up or analyze a factory that is connected to it.
 metadata:
-  version: "2026.1022.13"
+  version: "2026.1022.14"
   api-version: "4.0.0"
 ---
 
