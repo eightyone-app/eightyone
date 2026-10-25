@@ -2877,7 +2877,7 @@ Remove the link between an outside object and its EightyOne record. Neither the 
 
 ### `accounting.providers`: Accounting providers
 
-The accounting systems EightyOne connects to (QuickBooks, Xero, Sandib), which are available, and the company's current connection (one at a time).
+The accounting systems EightyOne connects to (QuickBooks, Xero, Accurants), which are available, and the company's current connection (one at a time).
 
 **REST:** `GET /api/v1/accounting/providers` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
 
@@ -2901,7 +2901,7 @@ Start connecting an accounting system: returns the provider's sign-in page. A pe
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `provider` | `quickbooks` \| `xero` \| `sandib` | yes |  |
+| `provider` | `quickbooks` \| `xero` \| `accurants` | yes |  |
 
 **Output**
 

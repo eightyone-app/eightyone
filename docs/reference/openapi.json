@@ -92,7 +92,7 @@
                     "enum": [
                       "quickbooks",
                       "xero",
-                      "sandib"
+                      "accurants"
                     ]
                   }
                 },
@@ -1411,7 +1411,7 @@
       "get": {
         "operationId": "accounting.providers",
         "summary": "Accounting providers",
-        "description": "The accounting systems EightyOne connects to (QuickBooks, Xero, Sandib), which are available, and the company's current connection (one at a time).\n\nPermission: `settings:view`.",
+        "description": "The accounting systems EightyOne connects to (QuickBooks, Xero, Accurants), which are available, and the company's current connection (one at a time).\n\nPermission: `settings:view`.",
         "tags": [
           "Accounting"
         ],

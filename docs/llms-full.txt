@@ -570,14 +570,14 @@ Ids and statuses only. EightyOne keeps no prices, amounts or totals from any sys
 
 <!-- https://docs.eightyone.app/guides/accounting.md -->
 
-# Accounting: QuickBooks, Xero and more
+# Accounting: QuickBooks and Xero
 
 **What it is:** EightyOne connects to a company's accounting system ("the books"). The books stay the place where money lives, and EightyOne never holds a price, a cost or a total. What moves between them is names, ids and quantities:
 
 - **From the books:** customers, vendors and products, and the quantities on hand of tracked items.
 - **To the books:** estimates, invoices and purchase orders, as items and quantities. The books price them.
 
-**Providers:** QuickBooks today. Xero and others are coming. `accounting.providers` lists them all, with which ones are available. A company connects one at a time.
+**Providers:** QuickBooks and Xero, with more to come. `accounting.providers` lists them all, with which ones are available. A company connects one at a time.
 
 **Who:** connecting, importing and sending documents need **Manage company settings & integrations**. Seeing the connection and the documents needs **View company settings & integrations**. The stock comparison needs **View inventory**.
 
@@ -615,7 +615,18 @@ Asking is `accounting.request_document` with the `kind` and one of `taskId`, `sh
 - **What goes over:** the customer or vendor, each product as its item in the books, and the quantities. A task's quantities are what was recorded on its form (parts removed or only counted aren't billed). A shipment's are its lines, a PO's are its lines. Each document is marked with EightyOne's reference ("Fix press (task id)", "PO 12: Restock").
 - **What comes back:** the document's number, its status in the books, and a link that opens it there. `accounting.list_documents` lists them, by task, shipment, purchase order or status.
 
-If the company's setting **Send invoices and quotes automatically** is on, the books also email each new estimate and invoice to the customer.
+If the company's setting **Send invoices and quotes automatically** is on, QuickBooks also emails each new estimate and invoice to the customer.
+
+## Provider differences
+
+| | QuickBooks | Xero |
+| --- | --- | --- |
+| Customers and vendors | Two separate lists | One list of contacts: a supplier that isn't also a customer is a vendor; every other contact is a customer |
+| Documents | Created ready to send | Created as **drafts**: someone approves them in Xero |
+| Prices | Read from the item for the one request, never kept | Xero fills them from the item itself |
+| Emailing documents | With the company setting | Not from EightyOne: drafts are approved and sent in Xero |
+| Test companies | Sandbox companies (the company's sandbox setting) | The Xero demo company, an ordinary organisation |
+| Stock adjustments by quantity | Supported by QuickBooks (not used yet) | Not possible: tracked stock only moves through priced documents |
 
 ## Stock
 
@@ -3534,7 +3545,7 @@ Remove the link between an outside object and its EightyOne record. Neither the 
 
 ### `accounting.providers`: Accounting providers
 
-The accounting systems EightyOne connects to (QuickBooks, Xero, Sandib), which are available, and the company's current connection (one at a time).
+The accounting systems EightyOne connects to (QuickBooks, Xero, Accurants), which are available, and the company's current connection (one at a time).
 
 **REST:** `GET /api/v1/accounting/providers` · **Permission:** `settings:view` · **Effect:** read · **MCP:** via `capabilities_call`
 
@@ -3558,7 +3569,7 @@ Start connecting an accounting system: returns the provider's sign-in page. A pe
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `provider` | `quickbooks` \| `xero` \| `sandib` | yes |  |
+| `provider` | `quickbooks` \| `xero` \| `accurants` | yes |  |
 
 **Output**
 
