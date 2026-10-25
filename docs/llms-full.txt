@@ -1522,6 +1522,25 @@ Change an SSU's name, image, active flag, default flag or location. Making it th
 | `createdAt` | string (date-time) | yes |  |
 | `updatedAt` | string (date-time) | yes |  |
 
+### `ssus.deletion_blockers`: What keeps an SSU from being deleted
+
+The history that keeps an SSU from being deleted (tasks, stock, downtime, signals, …), as labelled counts. Empty when it has none and may be deleted. A machine with history is kept; take it out of service with an offline status instead.
+
+**Permission:** `clients:manage` · **Effect:** read · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | SSU external id |
+
+**Output:** an array of
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `label` | string | yes |  |
+| `count` | integer | yes | Stops at 1000 ("1000+") |
+
 ## Inventory
 
 ### `line_items.find_ssu_by_barcode`: Find the SSU holding a scanned unit
@@ -5187,7 +5206,7 @@ View Clients, sites & SSUs
 
 Manage Clients, sites & SSUs
 
-Capabilities: `clients.create`, `clients.delete`, `clients.update`, `config.apply`, `ssus.update`
+Capabilities: `clients.create`, `clients.delete`, `clients.update`, `config.apply`, `ssus.deletion_blockers`, `ssus.update`
 
 ## `geographic:view`
 

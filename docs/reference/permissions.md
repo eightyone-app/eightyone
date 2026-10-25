@@ -72,7 +72,7 @@ View Clients, sites & SSUs
 
 Manage Clients, sites & SSUs
 
-Capabilities: `clients.create`, `clients.delete`, `clients.update`, `config.apply`, `ssus.update`
+Capabilities: `clients.create`, `clients.delete`, `clients.update`, `config.apply`, `ssus.deletion_blockers`, `ssus.update`
 
 ## `geographic:view`
 
