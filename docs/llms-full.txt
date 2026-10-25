@@ -109,6 +109,18 @@ EightyOne runs an [MCP](https://modelcontextprotocol.io) server. Any MCP client,
 
 Start with `me_get`: it shows the company, the person and their permissions. Tools the person can't use aren't listed.
 
+### Working for several companies
+
+An integrator usually serves several client companies, as an invited user in each. Every connection works in exactly one company:
+
+- `me_companies` lists the person's companies, marks the one this connection works in, and gives each company's own MCP URL (`…/mcp?company=<short name>`).
+- **Over OAuth,** add each company as its own connection, with its own URL, and approve it for that company when the sign-in page asks. A connection approved for one company is refused in another, and the refusal names the URL to use.
+- **With API keys,** create a key in each company (**Platform → API**). A key never works outside the company it was made in.
+
+## What the company's administrator sees
+
+Administrators see everyone who reaches their company programmatically on **Platform → API → Access**. That's each person's API keys and the agent apps they've connected (Claude, Cursor…), with when each was last used. People who also belong to other EightyOne companies, such as an integrator's staff, are marked and listed first. An administrator can **revoke** a key, or **block** one agent app for one person. A blocked app is refused for that person from its next call; their other apps, their keys and their own access are untouched, and the block can be undone. The same is available as `access.*` over REST, never to agents.
+
 ## What an agent can do
 
 - **Read:** tasks, machines and their status, work orders, downtime, analytics, storylines (a machine's or an order's history), inventory, quality, partner handoffs.
@@ -695,6 +707,23 @@ The caller: the user this credential acts as, the company it is bound to, how it
 | `actorType` | `human` \| `agent` \| `service` | yes |  |
 | `channel` | string | yes |  |
 | `permissions` | string[] | yes |  |
+
+### `me.companies`: My companies
+
+Every EightyOne company you belong to, and which one this connection works in. A connection (an API key, or an MCP connection approved over OAuth) works in exactly one company: to work in another, use that company's own MCP URL (connect it as a separate connection and approve it for that company) or an API key created there.
+
+**REST:** `GET /api/v1/me/companies` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `me_companies`
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `name` | string | yes |  |
+| `shortName` | string \| null | yes |  |
+| `current` | boolean | yes | The company this connection works in |
+| `mcpUrl` | string \| null | yes | This company's MCP server URL (null if MCP isn't set up) |
+| `apiKeysUrl` | string \| null | yes | Where to create an API key for this company |
 
 ## Guides
 
@@ -3732,6 +3761,81 @@ Queue a failed document again now, after fixing what its error says (for example
 | `createdAt` | string (date-time) | yes |  |
 | `sentAt` | string (date-time) \| null | yes |  |
 
+## Access
+
+### `access.list`: Who has programmatic access
+
+Every person in the company with API keys or connected agent apps (OAuth clients such as Claude or Cursor), outsiders first: people who also belong to other EightyOne companies, which is how a system integrator's staff show up. For each: their keys (name, permissions, last used) and agent apps (last used, calls in the last 30 days, blocked or not).
+
+**REST:** `GET /api/v1/access` · **Permission:** `permissions:manage` · **Effect:** read · **MCP:** no
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string | yes |  |
+| `name` | string | yes |  |
+| `email` | string | yes |  |
+| `isServiceAccount` | boolean | yes |  |
+| `otherCompanies` | integer | yes | Other EightyOne companies this person belongs to (integrators show up here) |
+| `keys` | object[] \| null | yes | Null when the key service couldn't be reached |
+| `agents` | object[] | yes |  |
+
+### `access.revoke_key`: Revoke someone's API key
+
+Revoke one person's API key in this company, at once. Their other keys and their own access stay.
+
+**REST:** `DELETE /api/v1/access/:userId/keys/:keyId` · **Permission:** `permissions:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string (uuid) | yes | The person's user id (from access.list) |
+| `keyId` | string | yes |  |
+
+### `access.block_agent`: Block an agent app for someone
+
+Stop one agent app (an OAuth client) for one person in this company, from their next call. They keep their dashboard access, their keys and their other agent apps. Undo with access.unblock_agent.
+
+**REST:** `POST /api/v1/access/:userId/agents/block` · **Permission:** `permissions:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string (uuid) | yes | The person's user id (from access.list) |
+| `clientId` | string | yes | The agent app's client id (from access.list) |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string | yes |  |
+| `clientId` | string | yes |  |
+| `blocked` | boolean | yes |  |
+
+### `access.unblock_agent`: Unblock an agent app
+
+Let one person use an agent app in this company again.
+
+**REST:** `POST /api/v1/access/:userId/agents/unblock` · **Permission:** `permissions:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string (uuid) | yes | The person's user id (from access.list) |
+| `clientId` | string | yes | The agent app's client id (from access.list) |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string | yes |  |
+| `clientId` | string | yes |  |
+| `blocked` | boolean | yes |  |
+
 ---
 
 <!-- https://docs.eightyone.app/reference/events.md -->
@@ -5135,7 +5239,7 @@ View Permission groups
 
 Manage Permission groups (Manage makes an administrator)
 
-Capabilities: `config.apply`
+Capabilities: `access.block_agent`, `access.list`, `access.revoke_key`, `access.unblock_agent`, `config.apply`
 
 ## `settings:view`
 
@@ -5323,7 +5427,7 @@ EightyOne runs factories and field-service companies. Everything that happens is
 ## Connecting
 
 - **MCP server:** `https://<your API host>/mcp`. Sign in with OAuth, or send an EightyOne API key as a bearer token.
-- **One connection is one company.** If the user belongs to several, add `?company=<short name>` to the URL.
+- **One connection is one company.** If the user belongs to several, `me_companies` lists them with each one's own MCP URL; to work in another, the user adds that URL as a separate connection and approves it for that company. Never try to switch companies inside one connection.
 - **Start with `me_get`.** It returns the company and the user's permissions. You can only do what that user can do; tools they can't use aren't listed.
 
 ## Rules
@@ -5452,6 +5556,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`line_items_find_ssu_by_barcode`**: Resolve a scanned line-item barcode to the SSU (machine / location) whose storage unit holds it. 404 when the unit, its storage unit or that storage unit's SSU is unknown.
 - **`machine_catalog_search_makes`**: Search the global catalog of machine manufacturers (e.g. 'Trumpf'). Use the existing spelling when it matches: everyone shares one catalog.
 - **`machine_catalog_search_models`**: Search the models of one make in the global catalog.
+- **`me_companies`**: Every EightyOne company you belong to, and which one this connection works in. A connection (an API key, or an MCP connection approved over OAuth) works in exactly one company: to work in another, use that company's own MCP URL (connect it as a separate connection and approve it for that company) or an API key created there.
 - **`me_get`**: The caller: the user this credential acts as, the company it is bound to, how it is calling (REST or MCP; human, agent or service account) and the permissions it actually has here (the union of the user's roles' groups ∩ the credential's permissions). Call it first to know what you can do.
 - **`meters_list`**: Usage meters on machines (run hours, strokes, cycles…) and their current readings. Usage-based maintenance rules open a task each time a meter advances by their interval. Filter by machine.
 - **`meters_record_reading`** (changes data): Enter a meter's current total (not the change), as a technician reads it off the machine. It can open usage-based maintenance tasks: preview it with dryRun first to see which. Needs 'Manage maintenance'.

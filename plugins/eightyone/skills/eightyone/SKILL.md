@@ -2,7 +2,7 @@
 name: eightyone
 description: Work with EightyOne (factory and field-service operations) through its MCP server. Commission a factory from a template, model production lines, configure task types and forms, and run the floor day to day (release work, complete tasks with their forms, NCRs, stops, stock). Also answer questions about machines, downtime, maintenance, work orders, inventory and quality. Use it whenever the user mentions EightyOne, or asks to set up or analyze a factory that is connected to it.
 metadata:
-  version: "2026.1025.15"
+  version: "2026.1025.16"
   api-version: "4.0.0"
 ---
 
@@ -13,7 +13,7 @@ EightyOne runs factories and field-service companies. Everything that happens is
 ## Connecting
 
 - **MCP server:** `https://<your API host>/mcp`. Sign in with OAuth, or send an EightyOne API key as a bearer token.
-- **One connection is one company.** If the user belongs to several, add `?company=<short name>` to the URL.
+- **One connection is one company.** If the user belongs to several, `me_companies` lists them with each one's own MCP URL; to work in another, the user adds that URL as a separate connection and approves it for that company. Never try to switch companies inside one connection.
 - **Start with `me_get`.** It returns the company and the user's permissions. You can only do what that user can do; tools they can't use aren't listed.
 
 ## Rules

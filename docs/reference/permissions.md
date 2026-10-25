@@ -124,7 +124,7 @@ View Permission groups
 
 Manage Permission groups (Manage makes an administrator)
 
-Capabilities: `config.apply`
+Capabilities: `access.block_agent`, `access.list`, `access.revoke_key`, `access.unblock_agent`, `config.apply`
 
 ## `settings:view`
 

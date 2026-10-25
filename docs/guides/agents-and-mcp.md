@@ -10,6 +10,18 @@ EightyOne runs an [MCP](https://modelcontextprotocol.io) server. Any MCP client,
 
 Start with `me_get`: it shows the company, the person and their permissions. Tools the person can't use aren't listed.
 
+### Working for several companies
+
+An integrator usually serves several client companies, as an invited user in each. Every connection works in exactly one company:
+
+- `me_companies` lists the person's companies, marks the one this connection works in, and gives each company's own MCP URL (`…/mcp?company=<short name>`).
+- **Over OAuth,** add each company as its own connection, with its own URL, and approve it for that company when the sign-in page asks. A connection approved for one company is refused in another, and the refusal names the URL to use.
+- **With API keys,** create a key in each company (**Platform → API**). A key never works outside the company it was made in.
+
+## What the company's administrator sees
+
+Administrators see everyone who reaches their company programmatically on **Platform → API → Access**. That's each person's API keys and the agent apps they've connected (Claude, Cursor…), with when each was last used. People who also belong to other EightyOne companies, such as an integrator's staff, are marked and listed first. An administrator can **revoke** a key, or **block** one agent app for one person. A blocked app is refused for that person from its next call; their other apps, their keys and their own access are untouched, and the block can be undone. The same is available as `access.*` over REST, never to agents.
+
 ## What an agent can do
 
 - **Read:** tasks, machines and their status, work orders, downtime, analytics, storylines (a machine's or an order's history), inventory, quality, partner handoffs.

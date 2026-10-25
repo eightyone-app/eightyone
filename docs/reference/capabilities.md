@@ -28,6 +28,23 @@ The caller: the user this credential acts as, the company it is bound to, how it
 | `channel` | string | yes |  |
 | `permissions` | string[] | yes |  |
 
+### `me.companies`: My companies
+
+Every EightyOne company you belong to, and which one this connection works in. A connection (an API key, or an MCP connection approved over OAuth) works in exactly one company: to work in another, use that company's own MCP URL (connect it as a separate connection and approve it for that company) or an API key created there.
+
+**REST:** `GET /api/v1/me/companies` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `me_companies`
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `name` | string | yes |  |
+| `shortName` | string \| null | yes |  |
+| `current` | boolean | yes | The company this connection works in |
+| `mcpUrl` | string \| null | yes | This company's MCP server URL (null if MCP isn't set up) |
+| `apiKeysUrl` | string \| null | yes | Where to create an API key for this company |
+
 ## Guides
 
 ### `guide.get`: Read a guide
@@ -3063,3 +3080,78 @@ Queue a failed document again now, after fixing what its error says (for example
 | `url` | string \| null | yes | Opens it in the accounting system |
 | `createdAt` | string (date-time) | yes |  |
 | `sentAt` | string (date-time) \| null | yes |  |
+
+## Access
+
+### `access.list`: Who has programmatic access
+
+Every person in the company with API keys or connected agent apps (OAuth clients such as Claude or Cursor), outsiders first: people who also belong to other EightyOne companies, which is how a system integrator's staff show up. For each: their keys (name, permissions, last used) and agent apps (last used, calls in the last 30 days, blocked or not).
+
+**REST:** `GET /api/v1/access` · **Permission:** `permissions:manage` · **Effect:** read · **MCP:** no
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string | yes |  |
+| `name` | string | yes |  |
+| `email` | string | yes |  |
+| `isServiceAccount` | boolean | yes |  |
+| `otherCompanies` | integer | yes | Other EightyOne companies this person belongs to (integrators show up here) |
+| `keys` | object[] \| null | yes | Null when the key service couldn't be reached |
+| `agents` | object[] | yes |  |
+
+### `access.revoke_key`: Revoke someone's API key
+
+Revoke one person's API key in this company, at once. Their other keys and their own access stay.
+
+**REST:** `DELETE /api/v1/access/:userId/keys/:keyId` · **Permission:** `permissions:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string (uuid) | yes | The person's user id (from access.list) |
+| `keyId` | string | yes |  |
+
+### `access.block_agent`: Block an agent app for someone
+
+Stop one agent app (an OAuth client) for one person in this company, from their next call. They keep their dashboard access, their keys and their other agent apps. Undo with access.unblock_agent.
+
+**REST:** `POST /api/v1/access/:userId/agents/block` · **Permission:** `permissions:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string (uuid) | yes | The person's user id (from access.list) |
+| `clientId` | string | yes | The agent app's client id (from access.list) |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string | yes |  |
+| `clientId` | string | yes |  |
+| `blocked` | boolean | yes |  |
+
+### `access.unblock_agent`: Unblock an agent app
+
+Let one person use an agent app in this company again.
+
+**REST:** `POST /api/v1/access/:userId/agents/unblock` · **Permission:** `permissions:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string (uuid) | yes | The person's user id (from access.list) |
+| `clientId` | string | yes | The agent app's client id (from access.list) |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string | yes |  |
+| `clientId` | string | yes |  |
+| `blocked` | boolean | yes |  |
