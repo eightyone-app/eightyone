@@ -68,6 +68,8 @@ Capabilities: `config.apply`
 
 View Clients, sites & SSUs
 
+Capabilities: `issues.site_qr_codes`
+
 ## `clients:manage`
 
 Manage Clients, sites & SSUs

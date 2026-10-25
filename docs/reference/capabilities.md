@@ -2704,6 +2704,25 @@ File an issue report on an SSU, as its QR code would: creates a task of the issu
 | --- | --- | --- | --- |
 | `taskId` | string | yes |  |
 
+### `issues.site_qr_codes`: Download a site's issue QR codes
+
+A ZIP with the issue's QR code for every SSU on a site, one PNG per SSU named after it, to print and post at the machines. Returns a download URL that expires after an hour.
+
+**Permission:** `clients:view` · **Effect:** read · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `siteId` | string | yes | The site's id |
+| `issueId` | string | yes | The issue's id (from issues.list) |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `zipUrl` | string | yes |  |
+
 ## Commissioning
 
 ### `config.export`: Export the factory setup
