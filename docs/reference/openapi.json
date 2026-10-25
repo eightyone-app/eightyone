@@ -6257,6 +6257,10 @@
                               "maxLength": 255,
                               "description": "The task type that starts the flow (set when the flow is created; one flow per type)"
                             },
+                            "enabled": {
+                              "description": "false: paused, creates no tasks. Left out: unchanged (new flows run)",
+                              "type": "boolean"
+                            },
                             "nodes": {
                               "type": "array",
                               "items": {
@@ -8788,6 +8792,10 @@
                             "maxLength": 255,
                             "description": "The task type that starts the flow (set when the flow is created; one flow per type)"
                           },
+                          "enabled": {
+                            "description": "false: paused, creates no tasks. Left out: unchanged (new flows run)",
+                            "type": "boolean"
+                          },
                           "nodes": {
                             "type": "array",
                             "items": {
@@ -11137,6 +11145,10 @@
                               "minLength": 1,
                               "maxLength": 255,
                               "description": "The task type that starts the flow (set when the flow is created; one flow per type)"
+                            },
+                            "enabled": {
+                              "description": "false: paused, creates no tasks. Left out: unchanged (new flows run)",
+                              "type": "boolean"
                             },
                             "nodes": {
                               "type": "array",
@@ -13678,6 +13690,10 @@
                               "minLength": 1,
                               "maxLength": 255,
                               "description": "The task type that starts the flow (set when the flow is created; one flow per type)"
+                            },
+                            "enabled": {
+                              "description": "false: paused, creates no tasks. Left out: unchanged (new flows run)",
+                              "type": "boolean"
                             },
                             "nodes": {
                               "type": "array",
@@ -17158,6 +17174,1438 @@
         "x-eightyone-dry-run": "n/a"
       }
     },
+    "/api/v1/flows": {
+      "get": {
+        "operationId": "flows.list",
+        "summary": "List flows",
+        "description": "The company's flows: automations that create the next task when a task reaches a status. Each with its starting task type, whether it's paused, and its size.\n\nPermission: `flows:view`.",
+        "tags": [
+          "Flows"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "startsWith": {
+                            "type": "string"
+                          },
+                          "nodes": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "edges": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "version": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "enabled",
+                          "startsWith",
+                          "nodes",
+                          "edges",
+                          "version"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "flows.list",
+        "x-eightyone-permission": "flows:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      },
+      "post": {
+        "operationId": "flows.create",
+        "summary": "Create a flow",
+        "description": "Create a flow starting with a task type (one flow per starting type), with its task types and arrows. Positions are laid out for the Flow Creator when left out. Refused when an arrow already exists in another flow (both would fire, D33). Preview with dryRun first.\n\nPermission: `flows:manage`.",
+        "tags": [
+          "Flows"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "startsWith": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A task type, by name or external id"
+                  },
+                  "nodes": {
+                    "description": "Defaults to the starting type plus every type the arrows name",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "taskType": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "A task type, by name or external id"
+                        },
+                        "x": {
+                          "description": "Canvas position; laid out automatically when left out",
+                          "type": "number"
+                        },
+                        "y": {
+                          "type": "number"
+                        },
+                        "inheritAssignee": {
+                          "description": "Tasks it creates take the triggering task's assignees, not the type's default assignee",
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "taskType"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "edges": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "The task type whose status change triggers"
+                        },
+                        "to": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "The task type of the task created"
+                        },
+                        "onStatus": {
+                          "type": "string",
+                          "enum": [
+                            "open",
+                            "preparation",
+                            "ready",
+                            "dispatched",
+                            "submitted",
+                            "incomplete",
+                            "done",
+                            "declined"
+                          ],
+                          "description": "The status that triggers it"
+                        }
+                      },
+                      "required": [
+                        "from",
+                        "to",
+                        "onStatus"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "enabled": {
+                    "description": "Create it paused with false",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "startsWith"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The flow's external id"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Paused flows create nothing"
+                    },
+                    "startsWith": {
+                      "type": "string",
+                      "description": "The task type that starts the flow"
+                    },
+                    "nodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "taskType": {
+                            "type": "string"
+                          },
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "inheritAssignee": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "taskType",
+                          "x",
+                          "y",
+                          "inheritAssignee"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "edges": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "from": {
+                            "type": "string"
+                          },
+                          "to": {
+                            "type": "string"
+                          },
+                          "onStatus": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "from",
+                          "to",
+                          "onStatus"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Send it back as expectedVersion so an edit made meanwhile isn't overwritten"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "enabled",
+                    "startsWith",
+                    "nodes",
+                    "edges",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "flows.create",
+        "x-eightyone-permission": "flows:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      }
+    },
+    "/api/v1/flows/{id}": {
+      "get": {
+        "operationId": "flows.get",
+        "summary": "Get a flow",
+        "description": "One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.\n\nPermission: `flows:view`.",
+        "tags": [
+          "Flows"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The flow's external id"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Paused flows create nothing"
+                    },
+                    "startsWith": {
+                      "type": "string",
+                      "description": "The task type that starts the flow"
+                    },
+                    "nodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "taskType": {
+                            "type": "string"
+                          },
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "inheritAssignee": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "taskType",
+                          "x",
+                          "y",
+                          "inheritAssignee"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "edges": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "from": {
+                            "type": "string"
+                          },
+                          "to": {
+                            "type": "string"
+                          },
+                          "onStatus": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "from",
+                          "to",
+                          "onStatus"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Send it back as expectedVersion so an edit made meanwhile isn't overwritten"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "enabled",
+                    "startsWith",
+                    "nodes",
+                    "edges",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "flows.get",
+        "x-eightyone-permission": "flows:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      },
+      "patch": {
+        "operationId": "flows.update",
+        "summary": "Edit a flow",
+        "description": "Rename a flow, pause or resume it (enabled), and change its canvas: either send the whole canvas (nodes + edges, replacing it) or a list of changes (addNodes, removeNodes, addEdges, removeEdges; removing a task type removes its arrows). The starting task type can't change. Send expectedVersion from flows.get so a change made meanwhile isn't overwritten. Preview with dryRun first: the answer lists the arrows added and removed.\n\nPermission: `flows:manage`.",
+        "tags": [
+          "Flows"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "enabled": {
+                    "description": "false pauses the flow: it creates nothing until resumed",
+                    "type": "boolean"
+                  },
+                  "canvas": {
+                    "type": "object",
+                    "properties": {
+                      "nodes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "taskType": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "A task type, by name or external id"
+                            },
+                            "x": {
+                              "description": "Canvas position; laid out automatically when left out",
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "inheritAssignee": {
+                              "description": "Tasks it creates take the triggering task's assignees, not the type's default assignee",
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "taskType"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "edges": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "from": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "The task type whose status change triggers"
+                            },
+                            "to": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "The task type of the task created"
+                            },
+                            "onStatus": {
+                              "type": "string",
+                              "enum": [
+                                "open",
+                                "preparation",
+                                "ready",
+                                "dispatched",
+                                "submitted",
+                                "incomplete",
+                                "done",
+                                "declined"
+                              ],
+                              "description": "The status that triggers it"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "to",
+                            "onStatus"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "nodes",
+                      "edges"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "changes": {
+                    "type": "object",
+                    "properties": {
+                      "addNodes": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "taskType": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "A task type, by name or external id"
+                            },
+                            "x": {
+                              "description": "Canvas position; laid out automatically when left out",
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "inheritAssignee": {
+                              "description": "Tasks it creates take the triggering task's assignees, not the type's default assignee",
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "taskType"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "removeNodes": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "A task type, by name or external id"
+                        }
+                      },
+                      "addEdges": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "from": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "The task type whose status change triggers"
+                            },
+                            "to": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "The task type of the task created"
+                            },
+                            "onStatus": {
+                              "type": "string",
+                              "enum": [
+                                "open",
+                                "preparation",
+                                "ready",
+                                "dispatched",
+                                "submitted",
+                                "incomplete",
+                                "done",
+                                "declined"
+                              ],
+                              "description": "The status that triggers it"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "to",
+                            "onStatus"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "removeEdges": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "from": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "The task type whose status change triggers"
+                            },
+                            "to": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "The task type of the task created"
+                            },
+                            "onStatus": {
+                              "type": "string",
+                              "enum": [
+                                "open",
+                                "preparation",
+                                "ready",
+                                "dispatched",
+                                "submitted",
+                                "incomplete",
+                                "done",
+                                "declined"
+                              ],
+                              "description": "The status that triggers it"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "to",
+                            "onStatus"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The flow's external id"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Paused flows create nothing"
+                    },
+                    "startsWith": {
+                      "type": "string",
+                      "description": "The task type that starts the flow"
+                    },
+                    "nodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "taskType": {
+                            "type": "string"
+                          },
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "inheritAssignee": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "taskType",
+                          "x",
+                          "y",
+                          "inheritAssignee"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "edges": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "from": {
+                            "type": "string"
+                          },
+                          "to": {
+                            "type": "string"
+                          },
+                          "onStatus": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "from",
+                          "to",
+                          "onStatus"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Send it back as expectedVersion so an edit made meanwhile isn't overwritten"
+                    },
+                    "changed": {
+                      "type": "object",
+                      "properties": {
+                        "arrowsAdded": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "arrowsRemoved": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "nodesAdded": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "nodesRemoved": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "arrowsAdded",
+                        "arrowsRemoved",
+                        "nodesAdded",
+                        "nodesRemoved"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "enabled",
+                    "startsWith",
+                    "nodes",
+                    "edges",
+                    "version",
+                    "changed"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "flows.update",
+        "x-eightyone-permission": "flows:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      },
+      "delete": {
+        "operationId": "flows.delete",
+        "summary": "Delete a flow",
+        "description": "Delete a flow: it stops creating tasks, and tasks it created stay. Never offered to agents (D27, D33): an agent pauses a flow instead (flows.update enabled: false) and tells the person to delete it in the Flow Creator.\n\nPermission: `flows:manage`.",
+        "tags": [
+          "Flows"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "flows.delete",
+        "x-eightyone-permission": "flows:manage",
+        "x-eightyone-effect": "destructive",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      }
+    },
+    "/api/v1/flows/simulate": {
+      "get": {
+        "operationId": "flows.simulate",
+        "summary": "What a status change sets off",
+        "description": "If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.\n\nPermission: `flows:view`.",
+        "tags": [
+          "Flows"
+        ],
+        "parameters": [
+          {
+            "name": "taskType",
+            "in": "query",
+            "required": true,
+            "description": "A task type, by name or external id",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A task type, by name or external id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "preparation",
+                "ready",
+                "dispatched",
+                "submitted",
+                "incomplete",
+                "done",
+                "declined"
+              ]
+            }
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 4,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "depth": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "when": {
+                            "type": "string",
+                            "description": "e.g. Inspection reaches done"
+                          },
+                          "creates": {
+                            "type": "string"
+                          },
+                          "flow": {
+                            "type": "string"
+                          },
+                          "inheritAssignee": {
+                            "type": "boolean"
+                          },
+                          "then": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "What the created task can set off next, by status"
+                          }
+                        },
+                        "required": [
+                          "depth",
+                          "when",
+                          "creates",
+                          "flow",
+                          "inheritAssignee",
+                          "then"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "loops": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "paused": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Arrows in paused flows that would otherwise fire"
+                    }
+                  },
+                  "required": [
+                    "steps",
+                    "loops",
+                    "paused"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "flows.simulate",
+        "x-eightyone-permission": "flows:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
     "/api/v1/guidance": {
       "get": {
         "operationId": "guidance.list",
@@ -17776,6 +19224,7 @@
                 "inventory",
                 "quality",
                 "commissioning",
+                "flows",
                 "signals",
                 "company"
               ]

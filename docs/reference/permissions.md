@@ -58,11 +58,13 @@ Capabilities: `config.apply`
 
 View Flows
 
+Capabilities: `flows.get`, `flows.list`, `flows.simulate`
+
 ## `flows:manage`
 
 Manage Flows
 
-Capabilities: `config.apply`
+Capabilities: `config.apply`, `flows.create`, `flows.delete`, `flows.update`
 
 ## `clients:view`
 

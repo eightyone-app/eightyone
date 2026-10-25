@@ -26,6 +26,7 @@ Administrators see everyone who reaches their company programmatically on **Plat
 
 - **Read:** tasks, machines and their status, work orders, downtime, analytics, storylines (a machine's or an order's history), inventory, quality, partner handoffs.
 - **Set up a company:** `config_export`, `config_validate`, `config_plan`, `config_apply` ([Commissioning](commissioning.md)).
+- **Automate with flows:** `flows_list`, `flows_get`, `flows_simulate` (what a status change sets off), `flows_create` and `flows_update` (rename, change the canvas, pause or resume), with the same rules as the Flow Creator. A flow is never deleted over MCP: an agent pauses it and tells the person to delete it in the Flow Creator.
 - **Run the floor:**
   - release work orders, and move, assign and complete tasks, filling in their forms;
   - record production counts;

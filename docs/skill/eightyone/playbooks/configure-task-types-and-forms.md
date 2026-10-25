@@ -63,7 +63,7 @@ Start with `config_export` and copy the `taskTypes` you're changing. Plan only t
     "edges": [{ "from": "Final inspection", "to": "NCR", "onStatus": "incomplete" }] }]
   ```
 
-  One flow per starting task type. The canvas (`nodes`, `edges`) is replaced as a whole.
+  One flow per starting task type. The canvas (`nodes`, `edges`) is replaced as a whole. To change one flow without a spec, use the `flows_*` tools ([automate-with-flows.md](automate-with-flows.md)).
 - **`issues`** (top level): what people can report from the app or a QR code. Each has the task type it opens, a priority and its own `form`.
 - **Settings** can name the task types used for NCRs, kitting, document approval and ECNs: `settings.ncrTaskType` and so on.
 

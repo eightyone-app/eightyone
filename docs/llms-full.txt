@@ -125,6 +125,7 @@ Administrators see everyone who reaches their company programmatically on **Plat
 
 - **Read:** tasks, machines and their status, work orders, downtime, analytics, storylines (a machine's or an order's history), inventory, quality, partner handoffs.
 - **Set up a company:** `config_export`, `config_validate`, `config_plan`, `config_apply` ([Commissioning](commissioning.md)).
+- **Automate with flows:** `flows_list`, `flows_get`, `flows_simulate` (what a status change sets off), `flows_create` and `flows_update` (rename, change the canvas, pause or resume), with the same rules as the Flow Creator. A flow is never deleted over MCP: an agent pauses it and tells the person to delete it in the Flow Creator.
 - **Run the floor:**
   - release work orders, and move, assign and complete tasks, filling in their forms;
   - record production counts;
@@ -737,7 +738,7 @@ EightyOne concepts and how to read the data: the glossary, downtime, maintenance
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `topic` | `glossary` \| `downtime` \| `maintenance` \| `production` \| `inventory` \| `quality` \| `commissioning` \| `signals` \| `company` |  | "company": what this company's administrators tell agents, including notes on specific machines |
+| `topic` | `glossary` \| `downtime` \| `maintenance` \| `production` \| `inventory` \| `quality` \| `commissioning` \| `flows` \| `signals` \| `company` |  | "company": what this company's administrators tell agents, including notes on specific machines |
 
 **Output**
 
@@ -3874,6 +3875,142 @@ Let one person use an agent app in this company again.
 | `clientId` | string | yes |  |
 | `blocked` | boolean | yes |  |
 
+## Flows
+
+### `flows.list`: List flows
+
+The company's flows: automations that create the next task when a task reaches a status. Each with its starting task type, whether it's paused, and its size.
+
+**REST:** `GET /api/v1/flows` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_list`
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes |  |
+| `startsWith` | string | yes |  |
+| `nodes` | integer | yes |  |
+| `edges` | integer | yes |  |
+| `version` | string | yes |  |
+
+### `flows.simulate`: What a status change sets off
+
+If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.
+
+**REST:** `GET /api/v1/flows/simulate` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_simulate`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `taskType` | string | yes | A task type, by name or external id |
+| `status` | `open` \| `preparation` \| `ready` \| `dispatched` \| `submitted` \| `incomplete` \| `done` \| `declined` | yes |  |
+| `depth` | integer |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `steps` | object[] | yes |  |
+| `loops` | string[] | yes |  |
+| `paused` | string[] | yes | Arrows in paused flows that would otherwise fire |
+
+### `flows.get`: Get a flow
+
+One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.
+
+**REST:** `GET /api/v1/flows/:id` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_get`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The flow's external id |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes | Paused flows create nothing |
+| `startsWith` | string | yes | The task type that starts the flow |
+| `nodes` | object[] | yes |  |
+| `edges` | object[] | yes |  |
+| `version` | string | yes | Send it back as expectedVersion so an edit made meanwhile isn't overwritten |
+
+### `flows.create`: Create a flow
+
+Create a flow starting with a task type (one flow per starting type), with its task types and arrows. Positions are laid out for the Flow Creator when left out. Refused when an arrow already exists in another flow (both would fire, D33). Preview with dryRun first.
+
+**REST:** `POST /api/v1/flows` · **Permission:** `flows:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** tool `flows_create`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes |  |
+| `startsWith` | string | yes | A task type, by name or external id |
+| `nodes` | object[] |  | Defaults to the starting type plus every type the arrows name |
+| `edges` | object[] |  |  |
+| `enabled` | boolean |  | Create it paused with false |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The flow's external id |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes | Paused flows create nothing |
+| `startsWith` | string | yes | The task type that starts the flow |
+| `nodes` | object[] | yes |  |
+| `edges` | object[] | yes |  |
+| `version` | string | yes | Send it back as expectedVersion so an edit made meanwhile isn't overwritten |
+
+### `flows.update`: Edit a flow
+
+Rename a flow, pause or resume it (enabled), and change its canvas: either send the whole canvas (nodes + edges, replacing it) or a list of changes (addNodes, removeNodes, addEdges, removeEdges; removing a task type removes its arrows). The starting task type can't change. Send expectedVersion from flows.get so a change made meanwhile isn't overwritten. Preview with dryRun first: the answer lists the arrows added and removed.
+
+**REST:** `PATCH /api/v1/flows/:id` · **Permission:** `flows:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** tool `flows_update`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `expectedVersion` | string |  |  |
+| `name` | string |  |  |
+| `enabled` | boolean |  | false pauses the flow: it creates nothing until resumed |
+| `canvas` | object |  |  |
+| `changes` | object |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The flow's external id |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes | Paused flows create nothing |
+| `startsWith` | string | yes | The task type that starts the flow |
+| `nodes` | object[] | yes |  |
+| `edges` | object[] | yes |  |
+| `version` | string | yes | Send it back as expectedVersion so an edit made meanwhile isn't overwritten |
+| `changed` | object | yes |  |
+
+### `flows.delete`: Delete a flow
+
+Delete a flow: it stops creating tasks, and tasks it created stay. Never offered to agents (D27, D33): an agent pauses a flow instead (flows.update enabled: false) and tells the person to delete it in the Flow Creator.
+
+**REST:** `DELETE /api/v1/flows/:id` · **Permission:** `flows:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+
 ---
 
 <!-- https://docs.eightyone.app/reference/events.md -->
@@ -5211,11 +5348,13 @@ Capabilities: `config.apply`
 
 View Flows
 
+Capabilities: `flows.get`, `flows.list`, `flows.simulate`
+
 ## `flows:manage`
 
 Manage Flows
 
-Capabilities: `config.apply`
+Capabilities: `config.apply`, `flows.create`, `flows.delete`, `flows.update`
 
 ## `clients:view`
 
@@ -5496,7 +5635,7 @@ EightyOne runs factories and field-service companies. Everything that happens is
    - A spec never invites anyone. `people` only covers users already in the company.
    - Companies are created by EightyOne staff only. If the user has no company yet, tell them to ask EightyOne.
 6. **Report gaps as gaps.** Unclassified stops, missing counts and machines with no data are findings, not something to guess around.
-7. **You can't remove things.** Deleting, and applying a spec with prune, are REST- and dashboard-only. If the user wants something removed, tell them where to do it.
+7. **You can't remove things.** Deleting, and applying a spec with prune, are REST- and dashboard-only. If the user wants something removed, tell them where to do it. To stop a flow, pause it (`flows_update` with `enabled: false`); deleting it is for a person, in the Flow Creator.
 
 ## Day-to-day work
 
@@ -5523,6 +5662,8 @@ Preview each of these first (rule 3):
 | Ship to a customer | `shipments_create` (draft), then `shipments_ship` |
 | Hand a task to a partner company; decline one sent to you; receive a partner's goods | `handoffs_send`; `handoffs_decline`; `partner_deliveries_receive` |
 | Run a cycle count | `inventory_counts_create`, `inventory_counts_record_lines`, `inventory_counts_finalize`, then `inventory_counts_reconcile` with the user's decision per discrepancy |
+| See what a status change sets off through the company's flows | `flows_simulate` |
+| Create, edit, rename, pause or resume a flow | `flows_create`, `flows_update` (with `expectedVersion` from `flows_get`): the preview lists the arrows added and removed |
 
 A work order completes by itself when its last operation is done. Photos, signatures and scans are given by people in the app: a task that requires one waits for them.
 
@@ -5535,6 +5676,7 @@ Read the one that matches the job before you start:
 | Set up a new factory, from a template or from scratch | [playbooks/commission-a-factory.md](playbooks/commission-a-factory.md) |
 | Add or change a production line: machines, operations, routing, machine data | [playbooks/model-a-production-line.md](playbooks/model-a-production-line.md) |
 | Create or change task types, their forms, SLAs, gates and flows | [playbooks/configure-task-types-and-forms.md](playbooks/configure-task-types-and-forms.md) |
+| Automate a process: what happens next when a task reaches a status | [playbooks/automate-with-flows.md](playbooks/automate-with-flows.md) |
 | Run the floor: release and dispatch work, complete tasks with their forms, quality, stops, stock | [playbooks/run-a-shift.md](playbooks/run-a-shift.md) |
 | Set up preventive maintenance: time, usage and condition triggers | [playbooks/set-up-preventive-maintenance.md](playbooks/set-up-preventive-maintenance.md) |
 | Find where production time is lost, and why | [playbooks/triage-downtime.md](playbooks/triage-downtime.md) |
@@ -5582,6 +5724,11 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`downtime_events_open`** (changes data): Record that a machine stopped now, for machines without telemetry (those report stops themselves). Close it with downtime_events_close when it runs again, and classify it with a reason. Needs 'Manage machine data'.
 - **`downtime_events_summary`**: Recorded stoppages per machine in a window (default: the last 30 days), most stopped time first, each broken down by reason code: the direct answer to "which machines were down most, and why?". Counts only the part of each stop inside the window; a stop still open counts up to the window end. Complements analytics.downtime, which measures time in a DOWN / MAINTENANCE status.
 - **`external_refs_lookup`**: Translate between an outside system's id and an EightyOne record. Send externalId to find the record it stands for, or entityType + entityId to find the record's id in that system. 404 when they aren't linked.
+- **`flows_create`** (changes data): Create a flow starting with a task type (one flow per starting type), with its task types and arrows. Positions are laid out for the Flow Creator when left out. Refused when an arrow already exists in another flow (both would fire, D33). Preview with dryRun first.
+- **`flows_get`**: One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.
+- **`flows_list`**: The company's flows: automations that create the next task when a task reaches a status. Each with its starting task type, whether it's paused, and its size.
+- **`flows_simulate`**: If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.
+- **`flows_update`** (changes data): Rename a flow, pause or resume it (enabled), and change its canvas: either send the whole canvas (nodes + edges, replacing it) or a list of changes (addNodes, removeNodes, addEdges, removeEdges; removing a task type removes its arrows). The starting task type can't change. Send expectedVersion from flows.get so a change made meanwhile isn't overwritten. Preview with dryRun first: the answer lists the arrows added and removed.
 - **`guide_get`**: EightyOne concepts and how to read the data: the glossary, downtime, maintenance, production, inventory, quality, commissioning, what deserves attention, and this company's own guidance (topic "company"). Without a topic, lists the topics. Read the glossary before working on an unfamiliar area.
 - **`handoffs_decline`** (changes data): Decline a task a partner sent you, with a reason they will see.
 - **`handoffs_send`** (changes data): Hand one of your tasks to another EightyOne company (by its short name, or a partner subcontractor). The partner gets its own copy; your people come off the task. Goods can travel with it (items), and a data-request task carries the scopes it asks for.

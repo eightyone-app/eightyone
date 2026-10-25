@@ -2,7 +2,7 @@
 name: eightyone
 description: Work with EightyOne (factory and field-service operations) through its MCP server. Commission a factory from a template, model production lines, configure task types and forms, and run the floor day to day (release work, complete tasks with their forms, NCRs, stops, stock). Also answer questions about machines, downtime, maintenance, work orders, inventory and quality. Use it whenever the user mentions EightyOne, or asks to set up or analyze a factory that is connected to it.
 metadata:
-  version: "2026.1025.20"
+  version: "2026.1025.21"
   api-version: "4.0.0"
 ---
 
@@ -42,7 +42,7 @@ EightyOne runs factories and field-service companies. Everything that happens is
    - A spec never invites anyone. `people` only covers users already in the company.
    - Companies are created by EightyOne staff only. If the user has no company yet, tell them to ask EightyOne.
 6. **Report gaps as gaps.** Unclassified stops, missing counts and machines with no data are findings, not something to guess around.
-7. **You can't remove things.** Deleting, and applying a spec with prune, are REST- and dashboard-only. If the user wants something removed, tell them where to do it.
+7. **You can't remove things.** Deleting, and applying a spec with prune, are REST- and dashboard-only. If the user wants something removed, tell them where to do it. To stop a flow, pause it (`flows_update` with `enabled: false`); deleting it is for a person, in the Flow Creator.
 
 ## Day-to-day work
 
@@ -69,6 +69,8 @@ Preview each of these first (rule 3):
 | Ship to a customer | `shipments_create` (draft), then `shipments_ship` |
 | Hand a task to a partner company; decline one sent to you; receive a partner's goods | `handoffs_send`; `handoffs_decline`; `partner_deliveries_receive` |
 | Run a cycle count | `inventory_counts_create`, `inventory_counts_record_lines`, `inventory_counts_finalize`, then `inventory_counts_reconcile` with the user's decision per discrepancy |
+| See what a status change sets off through the company's flows | `flows_simulate` |
+| Create, edit, rename, pause or resume a flow | `flows_create`, `flows_update` (with `expectedVersion` from `flows_get`): the preview lists the arrows added and removed |
 
 A work order completes by itself when its last operation is done. Photos, signatures and scans are given by people in the app: a task that requires one waits for them.
 
@@ -81,6 +83,7 @@ Read the one that matches the job before you start:
 | Set up a new factory, from a template or from scratch | [playbooks/commission-a-factory.md](playbooks/commission-a-factory.md) |
 | Add or change a production line: machines, operations, routing, machine data | [playbooks/model-a-production-line.md](playbooks/model-a-production-line.md) |
 | Create or change task types, their forms, SLAs, gates and flows | [playbooks/configure-task-types-and-forms.md](playbooks/configure-task-types-and-forms.md) |
+| Automate a process: what happens next when a task reaches a status | [playbooks/automate-with-flows.md](playbooks/automate-with-flows.md) |
 | Run the floor: release and dispatch work, complete tasks with their forms, quality, stops, stock | [playbooks/run-a-shift.md](playbooks/run-a-shift.md) |
 | Set up preventive maintenance: time, usage and condition triggers | [playbooks/set-up-preventive-maintenance.md](playbooks/set-up-preventive-maintenance.md) |
 | Find where production time is lost, and why | [playbooks/triage-downtime.md](playbooks/triage-downtime.md) |

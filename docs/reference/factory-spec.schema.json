@@ -1509,6 +1509,10 @@
             "maxLength": 255,
             "description": "The task type that starts the flow (set when the flow is created; one flow per type)"
           },
+          "enabled": {
+            "description": "false: paused, creates no tasks. Left out: unchanged (new flows run)",
+            "type": "boolean"
+          },
           "nodes": {
             "type": "array",
             "items": {

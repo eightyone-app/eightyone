@@ -57,7 +57,7 @@ EightyOne concepts and how to read the data: the glossary, downtime, maintenance
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `topic` | `glossary` \| `downtime` \| `maintenance` \| `production` \| `inventory` \| `quality` \| `commissioning` \| `signals` \| `company` |  | "company": what this company's administrators tell agents, including notes on specific machines |
+| `topic` | `glossary` \| `downtime` \| `maintenance` \| `production` \| `inventory` \| `quality` \| `commissioning` \| `flows` \| `signals` \| `company` |  | "company": what this company's administrators tell agents, including notes on specific machines |
 
 **Output**
 
@@ -3193,3 +3193,139 @@ Let one person use an agent app in this company again.
 | `userId` | string | yes |  |
 | `clientId` | string | yes |  |
 | `blocked` | boolean | yes |  |
+
+## Flows
+
+### `flows.list`: List flows
+
+The company's flows: automations that create the next task when a task reaches a status. Each with its starting task type, whether it's paused, and its size.
+
+**REST:** `GET /api/v1/flows` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_list`
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes |  |
+| `startsWith` | string | yes |  |
+| `nodes` | integer | yes |  |
+| `edges` | integer | yes |  |
+| `version` | string | yes |  |
+
+### `flows.simulate`: What a status change sets off
+
+If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.
+
+**REST:** `GET /api/v1/flows/simulate` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_simulate`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `taskType` | string | yes | A task type, by name or external id |
+| `status` | `open` \| `preparation` \| `ready` \| `dispatched` \| `submitted` \| `incomplete` \| `done` \| `declined` | yes |  |
+| `depth` | integer |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `steps` | object[] | yes |  |
+| `loops` | string[] | yes |  |
+| `paused` | string[] | yes | Arrows in paused flows that would otherwise fire |
+
+### `flows.get`: Get a flow
+
+One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.
+
+**REST:** `GET /api/v1/flows/:id` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_get`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The flow's external id |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes | Paused flows create nothing |
+| `startsWith` | string | yes | The task type that starts the flow |
+| `nodes` | object[] | yes |  |
+| `edges` | object[] | yes |  |
+| `version` | string | yes | Send it back as expectedVersion so an edit made meanwhile isn't overwritten |
+
+### `flows.create`: Create a flow
+
+Create a flow starting with a task type (one flow per starting type), with its task types and arrows. Positions are laid out for the Flow Creator when left out. Refused when an arrow already exists in another flow (both would fire, D33). Preview with dryRun first.
+
+**REST:** `POST /api/v1/flows` · **Permission:** `flows:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** tool `flows_create`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes |  |
+| `startsWith` | string | yes | A task type, by name or external id |
+| `nodes` | object[] |  | Defaults to the starting type plus every type the arrows name |
+| `edges` | object[] |  |  |
+| `enabled` | boolean |  | Create it paused with false |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The flow's external id |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes | Paused flows create nothing |
+| `startsWith` | string | yes | The task type that starts the flow |
+| `nodes` | object[] | yes |  |
+| `edges` | object[] | yes |  |
+| `version` | string | yes | Send it back as expectedVersion so an edit made meanwhile isn't overwritten |
+
+### `flows.update`: Edit a flow
+
+Rename a flow, pause or resume it (enabled), and change its canvas: either send the whole canvas (nodes + edges, replacing it) or a list of changes (addNodes, removeNodes, addEdges, removeEdges; removing a task type removes its arrows). The starting task type can't change. Send expectedVersion from flows.get so a change made meanwhile isn't overwritten. Preview with dryRun first: the answer lists the arrows added and removed.
+
+**REST:** `PATCH /api/v1/flows/:id` · **Permission:** `flows:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** tool `flows_update`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
+| `expectedVersion` | string |  |  |
+| `name` | string |  |  |
+| `enabled` | boolean |  | false pauses the flow: it creates nothing until resumed |
+| `canvas` | object |  |  |
+| `changes` | object |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The flow's external id |
+| `name` | string | yes |  |
+| `enabled` | boolean | yes | Paused flows create nothing |
+| `startsWith` | string | yes | The task type that starts the flow |
+| `nodes` | object[] | yes |  |
+| `edges` | object[] | yes |  |
+| `version` | string | yes | Send it back as expectedVersion so an edit made meanwhile isn't overwritten |
+| `changed` | object | yes |  |
+
+### `flows.delete`: Delete a flow
+
+Delete a flow: it stops creating tasks, and tasks it created stay. Never offered to agents (D27, D33): an agent pauses a flow instead (flows.update enabled: false) and tells the person to delete it in the Flow Creator.
+
+**REST:** `DELETE /api/v1/flows/:id` · **Permission:** `flows:manage` · **Effect:** destructive · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes |  |
