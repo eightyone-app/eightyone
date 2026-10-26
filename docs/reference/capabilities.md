@@ -133,7 +133,7 @@ Remove the guidance for the company or one subject. The audit log keeps what it 
 
 ### `tasks.list`: List tasks
 
-Tasks, newest first. Everything in EightyOne is a task (work-order operations, maintenance, inspections, NCRs, approvals…). Open tasks only unless a status is given or includeCompleted=true. Without the 'See all tasks' permission you see only tasks assigned to you, plus your teams' tasks with 'See tasks for my team'.
+Tasks, newest first. Everything in EightyOne is a task (work-order operations, maintenance, inspections, NCRs, approvals…). Open tasks only unless a status is given or includeCompleted=true. Each task names its assignees (personnel id, name, photo, color); assigneeId keeps one person's tasks, and the total counts them. Without the 'See all tasks' permission you see only tasks assigned to you, plus your teams' tasks with 'See tasks for my team'.
 
 **REST:** `GET /api/v1/tasks` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `tasks_list`
 
@@ -146,6 +146,7 @@ Tasks, newest first. Everything in EightyOne is a task (work-order operations, m
 | `status` | `open` \| `preparation` \| `ready` \| `dispatched` \| `submitted` \| `incomplete` \| `done` \| `declined` |  |  |
 | `typeId` | string |  | Task type external id |
 | `ssuId` | string |  | SSU external id |
+| `assigneeId` | integer |  | Personnel id: only tasks this person is on |
 | `includeCompleted` | boolean \| `true` \| `false` |  | Include done and declined tasks |
 
 **Output:** `{ data, pagination }`, each item:
@@ -162,6 +163,7 @@ Tasks, newest first. Everything in EightyOne is a task (work-order operations, m
 | `priorityId` | integer | yes |  |
 | `typeId` | string \| null | yes | Task type external id |
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
+| `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
@@ -200,6 +202,7 @@ One task by its id.
 | `priorityId` | integer | yes |  |
 | `typeId` | string \| null | yes | Task type external id |
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
+| `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
@@ -254,6 +257,7 @@ Create a task of a task type, exactly as the dashboard does: the type's defaults
 | `priorityId` | integer | yes |  |
 | `typeId` | string \| null | yes | Task type external id |
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
+| `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
@@ -311,6 +315,7 @@ Change a task, with the dashboard's rules: status changes need 'Change task stat
 | `priorityId` | integer | yes |  |
 | `typeId` | string \| null | yes | Task type external id |
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
+| `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
@@ -440,6 +445,7 @@ Answer a task's form fields by title (tasks_get_form lists them), and optionally
 | `priorityId` | integer | yes |  |
 | `typeId` | string \| null | yes | Task type external id |
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
+| `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
@@ -604,6 +610,64 @@ Delete a team and its memberships. Refused while a task type still belongs to it
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | string | yes |  |
+
+## Personnel
+
+### `personnel.list`: List personnel
+
+The company's people, by name: their personnel id (the id tasks' assignees, teams' memberIds and assigneeIds use), photo, color, roles, teams, rank and addresses (home and current temporary bases). Active people only unless includeInactive=true. To count a person's work, use tasks_list with assigneeId. Needs 'View personnel'.
+
+**REST:** `GET /api/v1/personnel` · **Permission:** `personnel:view` · **Effect:** read · **MCP:** tool `personnel_list`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer |  | Page size (1–100, default 50) |
+| `offset` | integer |  | Rows to skip |
+| `includeInactive` | boolean \| `true` \| `false` |  | Include deactivated people |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | integer | yes | Personnel id |
+| `name` | string | yes |  |
+| `imageUrl` | string \| null | yes |  |
+| `color` | string | yes | The person's color on the dashboard's boards |
+| `isActive` | boolean | yes |  |
+| `rank` | integer | yes | Seniority 0–5; task types may require a minimum |
+| `roles` | string[] | yes | Role (personnel title) names |
+| `teams` | object[] | yes |  |
+| `address` | object \| null | yes | Where the person starts from |
+| `temporaryAddresses` | object[] | yes | Current temporary bases (expired ones are left out) |
+
+### `personnel.get`: Get a person
+
+One person by personnel id (a task's assignee id, a team's memberId): name, photo, color, roles, teams, rank and addresses. Needs 'View personnel'.
+
+**REST:** `GET /api/v1/personnel/:id` · **Permission:** `personnel:view` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | integer | yes | Personnel id |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | integer | yes | Personnel id |
+| `name` | string | yes |  |
+| `imageUrl` | string \| null | yes |  |
+| `color` | string | yes | The person's color on the dashboard's boards |
+| `isActive` | boolean | yes |  |
+| `rank` | integer | yes | Seniority 0–5; task types may require a minimum |
+| `roles` | string[] | yes | Role (personnel title) names |
+| `teams` | object[] | yes |  |
+| `address` | object \| null | yes | Where the person starts from |
+| `temporaryAddresses` | object[] | yes | Current temporary bases (expired ones are left out) |
 
 ## Clients
 
@@ -2506,6 +2570,7 @@ Open a nonconformance report: a task of the company's NCR task type (Settings), 
 | `priorityId` | integer | yes |  |
 | `typeId` | string \| null | yes | Task type external id |
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
+| `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |

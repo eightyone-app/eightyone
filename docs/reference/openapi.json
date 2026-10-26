@@ -25134,6 +25134,41 @@
                       ],
                       "description": "The team whose members see and take this task: its task type's team (change it on the type)"
                     },
+                    "assignees": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991,
+                            "description": "Personnel id"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "The person's color on the dashboard's boards"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "imageUrl",
+                          "color"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "The people the task is on (personnel), by name"
+                    },
                     "ssuId": {
                       "description": "SSU external id",
                       "type": [
@@ -25256,6 +25291,7 @@
                     "priorityId",
                     "typeId",
                     "team",
+                    "assignees",
                     "ssuId",
                     "externalSystemId",
                     "incompleteReason",
@@ -26400,6 +26436,743 @@
         "x-eightyone-effect": "write",
         "x-eightyone-idempotent": true,
         "x-eightyone-dry-run": "transactional"
+      }
+    },
+    "/api/v1/personnel": {
+      "get": {
+        "operationId": "personnel.list",
+        "summary": "List personnel",
+        "description": "The company's people, by name: their personnel id (the id tasks' assignees, teams' memberIds and assigneeIds use), photo, color, roles, teams, rank and addresses (home and current temporary bases). Active people only unless includeInactive=true. To count a person's work, use tasks_list with assigneeId. Needs 'View personnel'.\n\nPermission: `personnel:view`.",
+        "tags": [
+          "Personnel"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size (1–100, default 50)",
+            "schema": {
+              "default": 50,
+              "description": "Page size (1–100, default 50)",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Rows to skip",
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "includeInactive",
+            "in": "query",
+            "required": false,
+            "description": "Include deactivated people",
+            "schema": {
+              "description": "Include deactivated people",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "true",
+                    "false"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991,
+                            "description": "Personnel id"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "The person's color on the dashboard's boards"
+                          },
+                          "isActive": {
+                            "type": "boolean"
+                          },
+                          "rank": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991,
+                            "description": "Seniority 0–5; task types may require a minimum"
+                          },
+                          "roles": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Role (personnel title) names"
+                          },
+                          "teams": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "address": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "fullAddress": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "streetName": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "streetNumber": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "state": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "country": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "latitude": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
+                                  },
+                                  "longitude": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "fullAddress",
+                                  "streetName",
+                                  "streetNumber",
+                                  "state",
+                                  "country",
+                                  "latitude",
+                                  "longitude"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Where the person starts from"
+                          },
+                          "temporaryAddresses": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "fullAddress": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "streetName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "streetNumber": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "state": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "country": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "latitude": {
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ]
+                                },
+                                "longitude": {
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ]
+                                },
+                                "expiresAt": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "fullAddress",
+                                "streetName",
+                                "streetNumber",
+                                "state",
+                                "country",
+                                "latitude",
+                                "longitude",
+                                "expiresAt"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "Current temporary bases (expired ones are left out)"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "imageUrl",
+                          "color",
+                          "isActive",
+                          "rank",
+                          "roles",
+                          "teams",
+                          "address",
+                          "temporaryAddresses"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "limit": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "limit",
+                        "offset",
+                        "total",
+                        "hasMore"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "pagination"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "personnel.list",
+        "x-eightyone-permission": "personnel:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
+    "/api/v1/personnel/{id}": {
+      "get": {
+        "operationId": "personnel.get",
+        "summary": "Get a person",
+        "description": "One person by personnel id (a task's assignee id, a team's memberId): name, photo, color, roles, teams, rank and addresses. Needs 'View personnel'.\n\nPermission: `personnel:view`.",
+        "tags": [
+          "Personnel"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991,
+              "description": "Personnel id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "Personnel id"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "color": {
+                      "type": "string",
+                      "description": "The person's color on the dashboard's boards"
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "rank": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "Seniority 0–5; task types may require a minimum"
+                    },
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Role (personnel title) names"
+                    },
+                    "teams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "address": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "fullAddress": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "streetName": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "streetNumber": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "state": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "country": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "latitude": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "longitude": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "fullAddress",
+                            "streetName",
+                            "streetNumber",
+                            "state",
+                            "country",
+                            "latitude",
+                            "longitude"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Where the person starts from"
+                    },
+                    "temporaryAddresses": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "fullAddress": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "streetName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "streetNumber": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "state": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "country": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "latitude": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "longitude": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "expiresAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "fullAddress",
+                          "streetName",
+                          "streetNumber",
+                          "state",
+                          "country",
+                          "latitude",
+                          "longitude",
+                          "expiresAt"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Current temporary bases (expired ones are left out)"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "imageUrl",
+                    "color",
+                    "isActive",
+                    "rank",
+                    "roles",
+                    "teams",
+                    "address",
+                    "temporaryAddresses"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "personnel.get",
+        "x-eightyone-permission": "personnel:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
       }
     },
     "/api/v1/purchase-orders": {
@@ -30947,7 +31720,7 @@
       "get": {
         "operationId": "tasks.list",
         "summary": "List tasks",
-        "description": "Tasks, newest first. Everything in EightyOne is a task (work-order operations, maintenance, inspections, NCRs, approvals…). Open tasks only unless a status is given or includeCompleted=true. Without the 'See all tasks' permission you see only tasks assigned to you, plus your teams' tasks with 'See tasks for my team'.\n\nPermission: `member`.",
+        "description": "Tasks, newest first. Everything in EightyOne is a task (work-order operations, maintenance, inspections, NCRs, approvals…). Open tasks only unless a status is given or includeCompleted=true. Each task names its assignees (personnel id, name, photo, color); assigneeId keeps one person's tasks, and the total counts them. Without the 'See all tasks' permission you see only tasks assigned to you, plus your teams' tasks with 'See tasks for my team'.\n\nPermission: `member`.",
         "tags": [
           "Tasks"
         ],
@@ -31014,6 +31787,18 @@
             "schema": {
               "description": "SSU external id",
               "type": "string"
+            }
+          },
+          {
+            "name": "assigneeId",
+            "in": "query",
+            "required": false,
+            "description": "Personnel id: only tasks this person is on",
+            "schema": {
+              "description": "Personnel id: only tasks this person is on",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
             }
           },
           {
@@ -31136,6 +31921,41 @@
                             ],
                             "description": "The team whose members see and take this task: its task type's team (change it on the type)"
                           },
+                          "assignees": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991,
+                                  "description": "Personnel id"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "imageUrl": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "color": {
+                                  "type": "string",
+                                  "description": "The person's color on the dashboard's boards"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "imageUrl",
+                                "color"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "The people the task is on (personnel), by name"
+                          },
                           "ssuId": {
                             "description": "SSU external id",
                             "type": [
@@ -31240,6 +32060,7 @@
                           "priorityId",
                           "typeId",
                           "team",
+                          "assignees",
                           "ssuId",
                           "externalSystemId",
                           "incompleteReason",
@@ -31646,6 +32467,41 @@
                       ],
                       "description": "The team whose members see and take this task: its task type's team (change it on the type)"
                     },
+                    "assignees": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991,
+                            "description": "Personnel id"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "The person's color on the dashboard's boards"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "imageUrl",
+                          "color"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "The people the task is on (personnel), by name"
+                    },
                     "ssuId": {
                       "description": "SSU external id",
                       "type": [
@@ -31750,6 +32606,7 @@
                     "priorityId",
                     "typeId",
                     "team",
+                    "assignees",
                     "ssuId",
                     "externalSystemId",
                     "incompleteReason",
@@ -32147,6 +33004,41 @@
                       ],
                       "description": "The team whose members see and take this task: its task type's team (change it on the type)"
                     },
+                    "assignees": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991,
+                            "description": "Personnel id"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "The person's color on the dashboard's boards"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "imageUrl",
+                          "color"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "The people the task is on (personnel), by name"
+                    },
                     "ssuId": {
                       "description": "SSU external id",
                       "type": [
@@ -32251,6 +33143,7 @@
                     "priorityId",
                     "typeId",
                     "team",
+                    "assignees",
                     "ssuId",
                     "externalSystemId",
                     "incompleteReason",
@@ -32639,6 +33532,41 @@
                       ],
                       "description": "The team whose members see and take this task: its task type's team (change it on the type)"
                     },
+                    "assignees": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991,
+                            "description": "Personnel id"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "The person's color on the dashboard's boards"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "imageUrl",
+                          "color"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "The people the task is on (personnel), by name"
+                    },
                     "ssuId": {
                       "description": "SSU external id",
                       "type": [
@@ -32762,6 +33690,7 @@
                     "priorityId",
                     "typeId",
                     "team",
+                    "assignees",
                     "ssuId",
                     "externalSystemId",
                     "incompleteReason",
@@ -33593,6 +34522,41 @@
                       ],
                       "description": "The team whose members see and take this task: its task type's team (change it on the type)"
                     },
+                    "assignees": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991,
+                            "description": "Personnel id"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "The person's color on the dashboard's boards"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "imageUrl",
+                          "color"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "The people the task is on (personnel), by name"
+                    },
                     "ssuId": {
                       "description": "SSU external id",
                       "type": [
@@ -33709,6 +34673,7 @@
                     "priorityId",
                     "typeId",
                     "team",
+                    "assignees",
                     "ssuId",
                     "externalSystemId",
                     "incompleteReason",

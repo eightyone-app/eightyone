@@ -90,6 +90,8 @@ Manage Geographic
 
 View Personnel & skills
 
+Capabilities: `personnel.get`, `personnel.list`
+
 ## `personnel:manage`
 
 Manage Personnel & skills
