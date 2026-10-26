@@ -5952,6 +5952,10 @@
                                     "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                     "type": "array",
                                     "items": {}
+                                  },
+                                  "useInIssueTitle": {
+                                    "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -6416,6 +6420,10 @@
                                     "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                     "type": "array",
                                     "items": {}
+                                  },
+                                  "useInIssueTitle": {
+                                    "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -8487,6 +8495,10 @@
                                   "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                   "type": "array",
                                   "items": {}
+                                },
+                                "useInIssueTitle": {
+                                  "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
@@ -8951,6 +8963,10 @@
                                   "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                   "type": "array",
                                   "items": {}
+                                },
+                                "useInIssueTitle": {
+                                  "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
@@ -10841,6 +10857,10 @@
                                     "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                     "type": "array",
                                     "items": {}
+                                  },
+                                  "useInIssueTitle": {
+                                    "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -11305,6 +11325,10 @@
                                     "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                     "type": "array",
                                     "items": {}
+                                  },
+                                  "useInIssueTitle": {
+                                    "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -13386,6 +13410,10 @@
                                     "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                     "type": "array",
                                     "items": {}
+                                  },
+                                  "useInIssueTitle": {
+                                    "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -13850,6 +13878,10 @@
                                     "description": "Type-specific settings, as the Mobile Builder stores them: select → [{ \"id\": \"1\", \"title\": \"Pass\", \"type\": \"select\" }, …]; number → [{ \"id\": \"config\", \"uom\": \"mm\", \"target\": 10, \"lsl\": 9.8, \"usl\": 10.2, \"decimals\": 2 }]. Copy the shape from an export",
                                     "type": "array",
                                     "items": {}
+                                  },
+                                  "useInIssueTitle": {
+                                    "description": "Issue forms only, on one short_text or select field: its answer names the report's task (<machine> · <answer> · <issue>). Makes the field required",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
