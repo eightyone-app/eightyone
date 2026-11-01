@@ -182,7 +182,7 @@ Capabilities: `inventory.reorder_suggestions`
 
 Manage Products, vendors & purchasing
 
-Capabilities: `config.apply`
+Capabilities: `config.apply`, `products.batch_upsert`
 
 ## `inventory:view`
 
@@ -212,13 +212,13 @@ Capabilities: `partner_deliveries.receive`, `purchase_orders.receive`
 
 View Production
 
-Capabilities: `storylines.work_order`, `work_orders.get`, `work_orders.list`
+Capabilities: `mes_connectors.list`, `storylines.work_order`, `work_orders.get`, `work_orders.list`
 
 ## `production:manage`
 
 Manage Production
 
-Capabilities: `config.apply`, `work_orders.batch_upsert`, `work_orders.upsert`
+Capabilities: `config.apply`, `mes_connectors.heartbeat`, `work_orders.batch_upsert`, `work_orders.mirror`, `work_orders.upsert`
 
 ## `work_orders:release`
 

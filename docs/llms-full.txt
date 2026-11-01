@@ -2186,7 +2186,7 @@ The company's work orders, newest first, optionally by status. Use for ERP pull-
 | `id` | string | yes | Work order external id |
 | `code` | string | yes | Human code, e.g. WO-1009 |
 | `externalSystemId` | string \| null | yes | Your (ERP) id for the order |
-| `source` | string | yes | dashboard or erp |
+| `source` | string | yes | dashboard, erp, or mes (mirrored from your MES: read-only here) |
 | `status` | `draft` \| `released` \| `in_progress` \| `completed` \| `closed` \| `cancelled` | yes |  |
 | `product` | object \| null | yes |  |
 | `quantity` | number | yes |  |
@@ -2194,6 +2194,7 @@ The company's work orders, newest first, optionally by status. Use for ERP pull-
 | `dueDate` | string (date-time) \| null | yes |  |
 | `routing` | object \| null | yes |  |
 | `releasedAt` | string (date-time) \| null | yes |  |
+| `startedAt` | string (date-time) \| null | yes | When it went in progress |
 | `completedAt` | string (date-time) \| null | yes |  |
 | `createdAt` | string (date-time) | yes |  |
 | `updatedAt` | string (date-time) | yes |  |
@@ -2217,7 +2218,7 @@ One work order with its operations (the traveler's tasks) and their status.
 | `id` | string | yes | Work order external id |
 | `code` | string | yes | Human code, e.g. WO-1009 |
 | `externalSystemId` | string \| null | yes | Your (ERP) id for the order |
-| `source` | string | yes | dashboard or erp |
+| `source` | string | yes | dashboard, erp, or mes (mirrored from your MES: read-only here) |
 | `status` | `draft` \| `released` \| `in_progress` \| `completed` \| `closed` \| `cancelled` | yes |  |
 | `product` | object \| null | yes |  |
 | `quantity` | number | yes |  |
@@ -2225,6 +2226,7 @@ One work order with its operations (the traveler's tasks) and their status.
 | `dueDate` | string (date-time) \| null | yes |  |
 | `routing` | object \| null | yes |  |
 | `releasedAt` | string (date-time) \| null | yes |  |
+| `startedAt` | string (date-time) \| null | yes | When it went in progress |
 | `completedAt` | string (date-time) \| null | yes |  |
 | `createdAt` | string (date-time) | yes |  |
 | `updatedAt` | string (date-time) | yes |  |
@@ -2249,7 +2251,7 @@ Release a draft work order to the floor: one operation task per routing step, ea
 | `id` | string | yes | Work order external id |
 | `code` | string | yes | Human code, e.g. WO-1009 |
 | `externalSystemId` | string \| null | yes | Your (ERP) id for the order |
-| `source` | string | yes | dashboard or erp |
+| `source` | string | yes | dashboard, erp, or mes (mirrored from your MES: read-only here) |
 | `status` | `draft` \| `released` \| `in_progress` \| `completed` \| `closed` \| `cancelled` | yes |  |
 | `product` | object \| null | yes |  |
 | `quantity` | number | yes |  |
@@ -2257,6 +2259,7 @@ Release a draft work order to the floor: one operation task per routing step, ea
 | `dueDate` | string (date-time) \| null | yes |  |
 | `routing` | object \| null | yes |  |
 | `releasedAt` | string (date-time) \| null | yes |  |
+| `startedAt` | string (date-time) \| null | yes | When it went in progress |
 | `completedAt` | string (date-time) \| null | yes |  |
 | `createdAt` | string (date-time) | yes |  |
 | `updatedAt` | string (date-time) | yes |  |
@@ -2297,6 +2300,98 @@ Upsert up to 500 orders; each succeeds or fails on its own (results in input ord
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `orders` | any[] | yes | Each item is a work_orders.upsert input; an invalid item fails on its own |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `results` | object[] | yes |  |
+
+### `work_orders.mirror`: Mirror work orders from your MES
+
+For a company that keeps its own MES: send its work orders as they stand there, and EightyOne mirrors them (read-only here). Idempotent on externalSystemId; send an order whenever it changes. Every order runs on `routing`, a released routing with exactly one step, and gets one task of it per machine (one with no machine when none match); the tasks' status follows the order's (released: ready, in_progress: dispatched, completed: done; draft and cancelled have no open tasks). Machines EightyOne doesn't know are ignored and listed in ignoredMachines. Machine status follows the step's task type: its on-open status when an order starts running on a machine, its on-completion status when the last mirrored order running there stops (only if nothing else changed the machine's status meanwhile). Nothing local follows a mirrored status: no stock, lots or accounting. Up to 500 orders; each succeeds or fails on its own (results in input order). Send products first (products.batch_upsert).
+
+**REST:** `POST /api/v1/work-orders/mirror` · **Permission:** `production:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | Your MES, lowercase (access, or your own slug): scopes the machine external refs |
+| `routing` | string | yes | Name of the one-step routing mirrored orders run on |
+| `orders` | any[] | yes | Each item: externalSystemId, productSku, status, and optionally code, quantity, uom, dueDate, startedAt, completedAt, machines |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `results` | object[] | yes |  |
+
+### `mes_connectors.heartbeat`: Report an MES connector's health
+
+Called by an on-prem MES connector on every sync cycle: it is alive, when it last synced, and its last error (null when the cycle went through). Not audited: it is a status report, not a change.
+
+**REST:** `POST /api/v1/mes-connectors/heartbeat` · **Permission:** `production:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes | Your MES, lowercase (access, or your own slug): the same value you send to work_orders.mirror |
+| `name` | string |  | What people call it |
+| `version` | string |  |  |
+| `host` | string |  | The machine it runs on |
+| `lastSyncAt` | string (date-time) |  |  |
+| `lastError` | string \| null |  | null clears it |
+| `stats` | object |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `name` | string \| null | yes |  |
+| `version` | string \| null | yes |  |
+| `host` | string \| null | yes |  |
+| `lastSeenAt` | string (date-time) | yes | Its last heartbeat |
+| `lastSyncAt` | string (date-time) \| null | yes | Its last complete sync cycle |
+| `lastError` | string \| null | yes |  |
+| `lastErrorAt` | string (date-time) \| null | yes |  |
+| `stats` | object \| null | yes | Counts from its last cycle |
+
+### `mes_connectors.list`: List MES connectors
+
+The company's on-prem MES connectors and their health: last heartbeat, last complete sync, last error. A connector whose lastSeenAt is old has stopped; its mirrored work orders are stale.
+
+**REST:** `GET /api/v1/mes-connectors` · **Permission:** `production:view` · **Effect:** read · **MCP:** tool `mes_connectors_list`
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `system` | string | yes |  |
+| `name` | string \| null | yes |  |
+| `version` | string \| null | yes |  |
+| `host` | string \| null | yes |  |
+| `lastSeenAt` | string (date-time) | yes | Its last heartbeat |
+| `lastSyncAt` | string (date-time) \| null | yes | Its last complete sync cycle |
+| `lastError` | string \| null | yes |  |
+| `lastErrorAt` | string (date-time) \| null | yes |  |
+| `stats` | object \| null | yes | Counts from its last cycle |
+
+## Products
+
+### `products.batch_upsert`: Create or update many products
+
+Bring products in from another system (an ERP, or your MES through the MES mirror) by SKU: a new SKU creates the product, a known one (case-insensitive) updates the fields you send. General information only: name, description, unit of measurement, category, active. Up to 500; each succeeds or fails on its own (results in input order).
+
+**REST:** `POST /api/v1/products/batch` · **Permission:** `products:manage` · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `products` | any[] | yes | Each item: sku, name, and optionally description, unitOfMeasurement, category, isActive |
 
 **Output**
 
@@ -5537,7 +5632,7 @@ Capabilities: `inventory.reorder_suggestions`
 
 Manage Products, vendors & purchasing
 
-Capabilities: `config.apply`
+Capabilities: `config.apply`, `products.batch_upsert`
 
 ## `inventory:view`
 
@@ -5567,13 +5662,13 @@ Capabilities: `partner_deliveries.receive`, `purchase_orders.receive`
 
 View Production
 
-Capabilities: `storylines.work_order`, `work_orders.get`, `work_orders.list`
+Capabilities: `mes_connectors.list`, `storylines.work_order`, `work_orders.get`, `work_orders.list`
 
 ## `production:manage`
 
 Manage Production
 
-Capabilities: `config.apply`, `work_orders.batch_upsert`, `work_orders.upsert`
+Capabilities: `config.apply`, `mes_connectors.heartbeat`, `work_orders.batch_upsert`, `work_orders.mirror`, `work_orders.upsert`
 
 ## `work_orders:release`
 
@@ -5812,6 +5907,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`machine_catalog_search_models`**: Search the models of one make in the global catalog.
 - **`me_companies`**: Every EightyOne company you belong to, and which one this connection works in. A connection (an API key, or an MCP connection approved over OAuth) works in exactly one company: to work in another, use that company's own MCP URL (connect it as a separate connection and approve it for that company) or an API key created there.
 - **`me_get`**: The caller: the user this credential acts as, the company it is bound to, how it is calling (REST or MCP; human, agent or service account) and the permissions it actually has here (the union of the user's roles' groups ∩ the credential's permissions). Call it first to know what you can do.
+- **`mes_connectors_list`**: The company's on-prem MES connectors and their health: last heartbeat, last complete sync, last error. A connector whose lastSeenAt is old has stopped; its mirrored work orders are stale.
 - **`meters_list`**: Usage meters on machines (run hours, strokes, cycles…) and their current readings. Usage-based maintenance rules open a task each time a meter advances by their interval. Filter by machine.
 - **`meters_record_reading`** (changes data): Enter a meter's current total (not the change), as a technician reads it off the machine. It can open usage-based maintenance tasks: preview it with dryRun first to see which. Needs 'Manage maintenance'.
 - **`ncrs_disposition`** (changes data): Decide what happens to nonconforming material, once per NCR. use_as_is: recorded only. rework: creates a rework task (of reworkTaskTypeId, or the NCR's own type). scrap: moves `quantity` of the lot to the bads bin and blocks the lot. return: blocks the lot for return to the vendor. Needs 'Disposition NCRs'.

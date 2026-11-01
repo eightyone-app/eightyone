@@ -24574,6 +24574,464 @@
         "x-eightyone-dry-run": "n/a"
       }
     },
+    "/api/v1/mes-connectors": {
+      "get": {
+        "operationId": "mes_connectors.list",
+        "summary": "List MES connectors",
+        "description": "The company's on-prem MES connectors and their health: last heartbeat, last complete sync, last error. A connector whose lastSeenAt is old has stopped; its mirrored work orders are stale.\n\nPermission: `production:view`.",
+        "tags": [
+          "Production"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "system": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "version": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "host": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "lastSeenAt": {
+                            "description": "Its last heartbeat",
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "lastSyncAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Its last complete sync cycle"
+                          },
+                          "lastError": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "lastErrorAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "stats": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {}
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Counts from its last cycle"
+                          }
+                        },
+                        "required": [
+                          "system",
+                          "name",
+                          "version",
+                          "host",
+                          "lastSeenAt",
+                          "lastSyncAt",
+                          "lastError",
+                          "lastErrorAt",
+                          "stats"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "mes_connectors.list",
+        "x-eightyone-permission": "production:view",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
+    "/api/v1/mes-connectors/heartbeat": {
+      "post": {
+        "operationId": "mes_connectors.heartbeat",
+        "summary": "Report an MES connector's health",
+        "description": "Called by an on-prem MES connector on every sync cycle: it is alive, when it last synced, and its last error (null when the cycle went through). Not audited: it is a status report, not a change.\n\nPermission: `production:manage`.",
+        "tags": [
+          "Production"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+                    "description": "Your MES, lowercase (access, or your own slug): the same value you send to work_orders.mirror"
+                  },
+                  "name": {
+                    "description": "What people call it",
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "version": {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  "host": {
+                    "description": "The machine it runs on",
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "lastSyncAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "lastError": {
+                    "description": "null clears it",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 4000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "system"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "system": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "version": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "host": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "lastSeenAt": {
+                      "description": "Its last heartbeat",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastSyncAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Its last complete sync cycle"
+                    },
+                    "lastError": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "lastErrorAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "stats": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Counts from its last cycle"
+                    }
+                  },
+                  "required": [
+                    "system",
+                    "name",
+                    "version",
+                    "host",
+                    "lastSeenAt",
+                    "lastSyncAt",
+                    "lastError",
+                    "lastErrorAt",
+                    "stats"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "mes_connectors.heartbeat",
+        "x-eightyone-permission": "production:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      }
+    },
     "/api/v1/meters": {
       "get": {
         "operationId": "meters.list",
@@ -27173,6 +27631,185 @@
         "x-eightyone-effect": "read",
         "x-eightyone-idempotent": false,
         "x-eightyone-dry-run": "n/a"
+      }
+    },
+    "/api/v1/products/batch": {
+      "post": {
+        "operationId": "products.batch_upsert",
+        "summary": "Create or update many products",
+        "description": "Bring products in from another system (an ERP, or your MES through the MES mirror) by SKU: a new SKU creates the product, a known one (case-insensitive) updates the fields you send. General information only: name, description, unit of measurement, category, active. Up to 500; each succeeds or fails on its own (results in input order).\n\nPermission: `products:manage`.",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "products": {
+                    "minItems": 1,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {},
+                    "description": "Each item: sku, name, and optionally description, unitOfMeasurement, category, isActive"
+                  }
+                },
+                "required": [
+                  "products"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sku": {
+                            "type": "string"
+                          },
+                          "ok": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "description": "Product external id",
+                            "type": "string"
+                          },
+                          "created": {
+                            "type": "boolean"
+                          },
+                          "error": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "sku",
+                          "ok"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "results"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "products.batch_upsert",
+        "x-eightyone-permission": "products:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
       }
     },
     "/api/v1/purchase-orders": {
@@ -37261,7 +37898,7 @@
                           },
                           "source": {
                             "type": "string",
-                            "description": "dashboard or erp"
+                            "description": "dashboard, erp, or mes (mirrored from your MES: read-only here)"
                           },
                           "status": {
                             "type": "string",
@@ -37356,6 +37993,18 @@
                               }
                             ]
                           },
+                          "startedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "When it went in progress"
+                          },
                           "completedAt": {
                             "anyOf": [
                               {
@@ -37388,6 +38037,7 @@
                           "dueDate",
                           "routing",
                           "releasedAt",
+                          "startedAt",
                           "completedAt",
                           "createdAt",
                           "updatedAt"
@@ -37600,7 +38250,7 @@
                         },
                         "source": {
                           "type": "string",
-                          "description": "dashboard or erp"
+                          "description": "dashboard, erp, or mes (mirrored from your MES: read-only here)"
                         },
                         "status": {
                           "type": "string",
@@ -37695,6 +38345,18 @@
                             }
                           ]
                         },
+                        "startedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "When it went in progress"
+                        },
                         "completedAt": {
                           "anyOf": [
                             {
@@ -37727,6 +38389,7 @@
                         "dueDate",
                         "routing",
                         "releasedAt",
+                        "startedAt",
                         "completedAt",
                         "createdAt",
                         "updatedAt"
@@ -37868,7 +38531,7 @@
                     },
                     "source": {
                       "type": "string",
-                      "description": "dashboard or erp"
+                      "description": "dashboard, erp, or mes (mirrored from your MES: read-only here)"
                     },
                     "status": {
                       "type": "string",
@@ -37963,6 +38626,18 @@
                         }
                       ]
                     },
+                    "startedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "When it went in progress"
+                    },
                     "completedAt": {
                       "anyOf": [
                         {
@@ -38028,6 +38703,7 @@
                     "dueDate",
                     "routing",
                     "releasedAt",
+                    "startedAt",
                     "completedAt",
                     "createdAt",
                     "updatedAt",
@@ -38182,7 +38858,7 @@
                     },
                     "source": {
                       "type": "string",
-                      "description": "dashboard or erp"
+                      "description": "dashboard, erp, or mes (mirrored from your MES: read-only here)"
                     },
                     "status": {
                       "type": "string",
@@ -38277,6 +38953,18 @@
                         }
                       ]
                     },
+                    "startedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "When it went in progress"
+                    },
                     "completedAt": {
                       "anyOf": [
                         {
@@ -38309,6 +38997,7 @@
                     "dueDate",
                     "routing",
                     "releasedAt",
+                    "startedAt",
                     "completedAt",
                     "createdAt",
                     "updatedAt"
@@ -38565,6 +39254,205 @@
           }
         },
         "x-eightyone-capability": "work_orders.batch_upsert",
+        "x-eightyone-permission": "production:manage",
+        "x-eightyone-effect": "write",
+        "x-eightyone-idempotent": true,
+        "x-eightyone-dry-run": "transactional"
+      }
+    },
+    "/api/v1/work-orders/mirror": {
+      "post": {
+        "operationId": "work_orders.mirror",
+        "summary": "Mirror work orders from your MES",
+        "description": "For a company that keeps its own MES: send its work orders as they stand there, and EightyOne mirrors them (read-only here). Idempotent on externalSystemId; send an order whenever it changes. Every order runs on `routing`, a released routing with exactly one step, and gets one task of it per machine (one with no machine when none match); the tasks' status follows the order's (released: ready, in_progress: dispatched, completed: done; draft and cancelled have no open tasks). Machines EightyOne doesn't know are ignored and listed in ignoredMachines. Machine status follows the step's task type: its on-open status when an order starts running on a machine, its on-completion status when the last mirrored order running there stops (only if nothing else changed the machine's status meanwhile). Nothing local follows a mirrored status: no stock, lots or accounting. Up to 500 orders; each succeeds or fails on its own (results in input order). Send products first (products.batch_upsert).\n\nPermission: `production:manage`.",
+        "tags": [
+          "Production"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Retry safely: a repeated key returns the first result for 24 h",
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          {
+            "name": "Prefer",
+            "in": "header",
+            "required": false,
+            "description": "`dry-run`: validate and return the planned changes without committing",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dry-run"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+                    "description": "Your MES, lowercase (access, or your own slug): scopes the machine external refs"
+                  },
+                  "routing": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "description": "Name of the one-step routing mirrored orders run on"
+                  },
+                  "orders": {
+                    "minItems": 1,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {},
+                    "description": "Each item: externalSystemId, productSku, status, and optionally code, quantity, uom, dueDate, startedAt, completedAt, machines"
+                  }
+                },
+                "required": [
+                  "system",
+                  "routing",
+                  "orders"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "externalSystemId": {
+                            "type": "string"
+                          },
+                          "ok": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "description": "Work order external id",
+                            "type": "string"
+                          },
+                          "created": {
+                            "type": "boolean"
+                          },
+                          "ignoredMachines": {
+                            "description": "Machines named by the MES that EightyOne doesn't know (reported for failed orders too)",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "error": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "externalSystemId",
+                          "ok"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "results"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "work_orders.mirror",
         "x-eightyone-permission": "production:manage",
         "x-eightyone-effect": "write",
         "x-eightyone-idempotent": true,
