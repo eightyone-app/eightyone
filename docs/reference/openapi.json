@@ -37962,6 +37962,10 @@
                               {
                                 "type": "object",
                                 "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "description": "Routing external id (work_orders.mirror takes it as routingId)"
+                                  },
                                   "name": {
                                     "type": "string"
                                   },
@@ -37972,6 +37976,7 @@
                                   }
                                 },
                                 "required": [
+                                  "id",
                                   "name",
                                   "version"
                                 ],
@@ -38314,6 +38319,10 @@
                             {
                               "type": "object",
                               "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "description": "Routing external id (work_orders.mirror takes it as routingId)"
+                                },
                                 "name": {
                                   "type": "string"
                                 },
@@ -38324,6 +38333,7 @@
                                 }
                               },
                               "required": [
+                                "id",
                                 "name",
                                 "version"
                               ],
@@ -38595,6 +38605,10 @@
                         {
                           "type": "object",
                           "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Routing external id (work_orders.mirror takes it as routingId)"
+                            },
                             "name": {
                               "type": "string"
                             },
@@ -38605,6 +38619,7 @@
                             }
                           },
                           "required": [
+                            "id",
                             "name",
                             "version"
                           ],
@@ -38922,6 +38937,10 @@
                         {
                           "type": "object",
                           "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Routing external id (work_orders.mirror takes it as routingId)"
+                            },
                             "name": {
                               "type": "string"
                             },
@@ -38932,6 +38951,7 @@
                             }
                           },
                           "required": [
+                            "id",
                             "name",
                             "version"
                           ],
@@ -39264,7 +39284,7 @@
       "post": {
         "operationId": "work_orders.mirror",
         "summary": "Mirror work orders from your MES",
-        "description": "For a company that keeps its own MES: send its work orders as they stand there, and EightyOne mirrors them (read-only here). Idempotent on externalSystemId; send an order whenever it changes. Every order runs on `routing`, a released routing with exactly one step, and gets one task of it per machine (one with no machine when none match); the tasks' status follows the order's (released: ready, in_progress: dispatched, completed: done; draft and cancelled have no open tasks). Machines EightyOne doesn't know are ignored and listed in ignoredMachines. Machine status follows the step's task type: its on-open status when an order starts running on a machine, its on-completion status when the last mirrored order running there stops (only if nothing else changed the machine's status meanwhile). Nothing local follows a mirrored status: no stock, lots or accounting. Up to 500 orders; each succeeds or fails on its own (results in input order). Send products first (products.batch_upsert).\n\nPermission: `production:manage`.",
+        "description": "For a company that keeps its own MES: send its work orders as they stand there, and EightyOne mirrors them (read-only here). Idempotent on externalSystemId; send an order whenever it changes. Name the routing every order runs on by `routingId` (its external id) or, the original contract, by `routing` (the name of a one-step routing); exactly one. With routingId, each order gets one task per routing step, each on the order's machine whose work center is the step's task type's: the machines must all be known and pair up with the steps one to one, or the order fails; a routing that isn't released, has a blocking step, or has a step with no work center (or two sharing one) fails the call. With routing, each order gets one task of its step per machine (one with no machine when none match), and machines EightyOne doesn't know are ignored and listed in ignoredMachines. The tasks' status follows the order's (released: ready, in_progress: dispatched, completed: done; draft and cancelled have no open tasks), and they all start and end together at the order's startedAt and completedAt; an order first sent completed opens with its tasks done. Machine status follows each task's type: its on-open status when an order starts running on a machine, its on-completion status when the last mirrored order running there stops (only if nothing else changed the machine's status meanwhile). Nothing local follows a mirrored status: no stock, lots or accounting. Up to 500 orders; each succeeds or fails on its own (results in input order). Send products first (products.batch_upsert).\n\nPermission: `production:manage`.",
         "tags": [
           "Production"
         ],
@@ -39304,11 +39324,17 @@
                     "pattern": "^[a-z][a-z0-9_-]{1,31}$",
                     "description": "Your MES, lowercase (access, or your own slug): scopes the machine external refs"
                   },
-                  "routing": {
+                  "routingId": {
+                    "description": "External id of the routing mirrored orders run on: one task per step, each on its machine",
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 255,
-                    "description": "Name of the one-step routing mirrored orders run on"
+                    "maxLength": 64
+                  },
+                  "routing": {
+                    "description": "Name of a one-step routing mirrored orders run on (the original contract; prefer routingId)",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
                   },
                   "orders": {
                     "minItems": 1,
@@ -39320,7 +39346,6 @@
                 },
                 "required": [
                   "system",
-                  "routing",
                   "orders"
                 ],
                 "additionalProperties": false
