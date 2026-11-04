@@ -194,7 +194,7 @@ Capabilities: `accounting.inventory_differences`, `customers.list`, `inventory.s
 
 Manage Inventory
 
-Capabilities: `config.apply`, `inventory_counts.create`, `inventory_counts.finalize`, `inventory_counts.reconcile`, `inventory_counts.record_lines`, `shipments.cancel`, `shipments.create`, `shipments.ship`, `stock.transfer`
+Capabilities: `config.apply`, `inventory_counts.create`, `inventory_counts.finalize`, `inventory_counts.reconcile`, `inventory_counts.record_lines`, `shipments.cancel`, `shipments.create`, `shipments.ship`, `stock.transfer`, `storage_units.deletion_blockers`
 
 ## `inventory:adjust`
 

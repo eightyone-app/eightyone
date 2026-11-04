@@ -1073,6 +1073,25 @@ A storage unit and everything in it: per product, bin (goods / bads / quarantine
 | `site` | object \| null | yes |  |
 | `contents` | object[] | yes |  |
 
+### `storage_units.deletion_blockers`: What keeps a storage unit from being deleted
+
+Why a storage unit can't be deleted: a rule (it's a machine's own unit, or the last unit of a client or personnel site) and its history (stock, transactions, tasks, counts, documents, …) as labelled counts. Both empty when it may be deleted.
+
+**Permission:** `inventory:manage` · **Effect:** read · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | Storage unit external id |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `reason` | string \| null | yes |  |
+| `blockers` | object[] | yes |  |
+
 ### `stock.transfer`: Move stock
 
 Move stock between storage units, or between bins in one unit, as the dashboard's transfers do: name the product by SKU, and the lot or serial when it's tracked. It can't move more than is there. Needs 'Manage inventory'.
