@@ -168,10 +168,11 @@
               "RUNNING",
               "IDLE",
               "DOWN",
+              "CHANGEOVER",
               "MAINTENANCE",
               "OFFLINE"
             ],
-            "description": "What the status means for analytics: RUNNING, IDLE, DOWN, MAINTENANCE or OFFLINE"
+            "description": "What the status means for analytics: RUNNING, IDLE (scheduled, not producing), DOWN (failure / repair), CHANGEOVER (setup between jobs), MAINTENANCE (planned maintenance, outside OEE planned time) or OFFLINE (off-shift)"
           },
           "color": {
             "type": "string",

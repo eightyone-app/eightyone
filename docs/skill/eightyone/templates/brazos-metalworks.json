@@ -53,6 +53,20 @@
       "color": "#F79009",
       "isDefault": false,
       "sortOrder": 4
+    },
+    {
+      "name": "Changeover",
+      "category": "CHANGEOVER",
+      "color": "#7A5AF8",
+      "isDefault": false,
+      "sortOrder": 5
+    },
+    {
+      "name": "Off shift",
+      "category": "OFFLINE",
+      "color": "#344054",
+      "isDefault": false,
+      "sortOrder": 6
     }
   ],
   "reasonCodes": [
@@ -1907,7 +1921,7 @@
       "useSubmittedStatus": false,
       "allowFieldTakeover": true,
       "recurrenceHours": null,
-      "ssuStatusOnOpen": "In service",
+      "ssuStatusOnOpen": "Changeover",
       "ssuStatusOnComplete": "Idle",
       "workCenter": "Press Brake",
       "product": null,

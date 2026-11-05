@@ -37,3 +37,10 @@ Its preview lists each operation it would create. Work orders usually come from 
 ## Downtime and OEE
 
 Machines report stops from telemetry, or people report them. Stops are classified with reason codes. `analytics.oee`, `analytics.downtime` and `downtime_events.summary` turn counts, stops and standard times into availability, performance and quality.
+
+How `analytics.oee` reads the data:
+
+- **Availability** = run time / planned time. Planned time is every status but OFFLINE (off-shift) and MAINTENANCE (planned maintenance). DOWN, CHANGEOVER and IDLE are availability losses. Status time is clipped to the window, and the status a machine is still in counts up to now.
+- **Performance** = ideal time / run time. Each counted unit (good or scrap) earns its task type's std run minutes. Setup minutes earn nothing. `quantityWithoutStandard` counts units with no standard.
+- **Quality** = good / (good + scrap).
+- The overview's averages are weighted by planned time.

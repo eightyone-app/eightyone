@@ -2573,7 +2573,7 @@
       "get": {
         "operationId": "analytics.downtime",
         "summary": "Downtime by machine",
-        "description": "Time each machine (SSU) spent DOWN or in MAINTENANCE in the window, most first, with how many times it entered that state. For the reasons, follow up with downtime_events.list (reason-coded stoppages) or storylines.ssu (the machine's story).\n\nPermission: `insights:view`.",
+        "description": "Time each machine (SSU) spent stopped (DOWN, CHANGEOVER or MAINTENANCE) in the window, most first, with how many times it entered that state. For the reasons, follow up with downtime_events.list (reason-coded stoppages) or storylines.ssu (the machine's story).\n\nPermission: `insights:view`.",
         "tags": [
           "Analytics"
         ],
@@ -2992,7 +2992,7 @@
       "get": {
         "operationId": "analytics.oee",
         "summary": "OEE by machine",
-        "description": "Overall equipment effectiveness per machine: availability, performance and quality (0–1) with good / scrap quantities. A factor is null when its source data is missing (no routed work, no counts).\n\nPermission: `insights:view`.",
+        "description": "Overall equipment effectiveness per machine: availability × performance × quality (0–1), from status time, task-type standard run minutes and good / scrap counts. Standard loss model: planned time is every status but OFFLINE and MAINTENANCE (planned maintenance); DOWN, CHANGEOVER and IDLE are availability losses within it. Performance credits each counted unit with its task type's std run minutes (setup earns nothing); `quantityWithoutStandard` > 0 means some units had no standard and performance is understated. A factor is null when its source data is missing (no status changes, no standards, no counts).\n\nPermission: `insights:view`.",
         "tags": [
           "Analytics"
         ],
@@ -3085,10 +3085,32 @@
                             ]
                           },
                           "plannedSeconds": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Every status but OFFLINE and MAINTENANCE"
                           },
                           "downtimeSeconds": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "DOWN: unplanned stops (availability loss)"
+                          },
+                          "changeoverSeconds": {
+                            "type": "number",
+                            "description": "CHANGEOVER: setup between jobs (availability loss)"
+                          },
+                          "idleSeconds": {
+                            "type": "number",
+                            "description": "IDLE: scheduled but not producing (availability loss)"
+                          },
+                          "maintenanceSeconds": {
+                            "type": "number",
+                            "description": "MAINTENANCE: planned maintenance, outside planned time"
+                          },
+                          "offlineSeconds": {
+                            "type": "number",
+                            "description": "OFFLINE: outside planned time"
+                          },
+                          "runSeconds": {
+                            "type": "number",
+                            "description": "Planned − (down + changeover + idle)"
                           },
                           "availability": {
                             "type": [
@@ -3102,6 +3124,10 @@
                               "number",
                               "null"
                             ]
+                          },
+                          "quantityWithoutStandard": {
+                            "type": "number",
+                            "description": "Counted units whose task type has no std run minutes; performance is understated"
                           },
                           "quality": {
                             "type": [
@@ -3127,8 +3153,14 @@
                           "ssuName",
                           "plannedSeconds",
                           "downtimeSeconds",
+                          "changeoverSeconds",
+                          "idleSeconds",
+                          "maintenanceSeconds",
+                          "offlineSeconds",
+                          "runSeconds",
                           "availability",
                           "performance",
+                          "quantityWithoutStandard",
                           "quality",
                           "goodQuantity",
                           "scrapQuantity",
@@ -3315,14 +3347,14 @@
                       "maximum": 9007199254740991
                     },
                     "avgAvailability": {
-                      "description": "0–1",
+                      "description": "0–1, weighted by planned time",
                       "type": [
                         "number",
                         "null"
                       ]
                     },
                     "avgOee": {
-                      "description": "0–1",
+                      "description": "0–1, weighted by planned time",
                       "type": [
                         "number",
                         "null"
@@ -4916,10 +4948,11 @@
                                 "RUNNING",
                                 "IDLE",
                                 "DOWN",
+                                "CHANGEOVER",
                                 "MAINTENANCE",
                                 "OFFLINE"
                               ],
-                              "description": "What the status means for analytics: RUNNING, IDLE, DOWN, MAINTENANCE or OFFLINE"
+                              "description": "What the status means for analytics: RUNNING, IDLE (scheduled, not producing), DOWN (failure / repair), CHANGEOVER (setup between jobs), MAINTENANCE (planned maintenance, outside OEE planned time) or OFFLINE (off-shift)"
                             },
                             "color": {
                               "type": "string",
@@ -7459,10 +7492,11 @@
                               "RUNNING",
                               "IDLE",
                               "DOWN",
+                              "CHANGEOVER",
                               "MAINTENANCE",
                               "OFFLINE"
                             ],
-                            "description": "What the status means for analytics: RUNNING, IDLE, DOWN, MAINTENANCE or OFFLINE"
+                            "description": "What the status means for analytics: RUNNING, IDLE (scheduled, not producing), DOWN (failure / repair), CHANGEOVER (setup between jobs), MAINTENANCE (planned maintenance, outside OEE planned time) or OFFLINE (off-shift)"
                           },
                           "color": {
                             "type": "string",
@@ -9821,10 +9855,11 @@
                                 "RUNNING",
                                 "IDLE",
                                 "DOWN",
+                                "CHANGEOVER",
                                 "MAINTENANCE",
                                 "OFFLINE"
                               ],
-                              "description": "What the status means for analytics: RUNNING, IDLE, DOWN, MAINTENANCE or OFFLINE"
+                              "description": "What the status means for analytics: RUNNING, IDLE (scheduled, not producing), DOWN (failure / repair), CHANGEOVER (setup between jobs), MAINTENANCE (planned maintenance, outside OEE planned time) or OFFLINE (off-shift)"
                             },
                             "color": {
                               "type": "string",
@@ -12374,10 +12409,11 @@
                                 "RUNNING",
                                 "IDLE",
                                 "DOWN",
+                                "CHANGEOVER",
                                 "MAINTENANCE",
                                 "OFFLINE"
                               ],
-                              "description": "What the status means for analytics: RUNNING, IDLE, DOWN, MAINTENANCE or OFFLINE"
+                              "description": "What the status means for analytics: RUNNING, IDLE (scheduled, not producing), DOWN (failure / repair), CHANGEOVER (setup between jobs), MAINTENANCE (planned maintenance, outside OEE planned time) or OFFLINE (off-shift)"
                             },
                             "color": {
                               "type": "string",

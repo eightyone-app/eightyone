@@ -2274,14 +2274,14 @@ Headline numbers for a window: total downtime, failures, average availability an
 | `downtimeSeconds` | number | yes |  |
 | `downtimeHours` | number | yes |  |
 | `failures` | integer | yes |  |
-| `avgAvailability` | number \| null | yes | 0–1 |
-| `avgOee` | number \| null | yes | 0–1 |
+| `avgAvailability` | number \| null | yes | 0–1, weighted by planned time |
+| `avgOee` | number \| null | yes | 0–1, weighted by planned time |
 | `monitoredSsus` | integer | yes |  |
 | `unavailableMetrics` | string[] | yes |  |
 
 ### `analytics.downtime`: Downtime by machine
 
-Time each machine (SSU) spent DOWN or in MAINTENANCE in the window, most first, with how many times it entered that state. For the reasons, follow up with downtime_events.list (reason-coded stoppages) or storylines.ssu (the machine's story).
+Time each machine (SSU) spent stopped (DOWN, CHANGEOVER or MAINTENANCE) in the window, most first, with how many times it entered that state. For the reasons, follow up with downtime_events.list (reason-coded stoppages) or storylines.ssu (the machine's story).
 
 **REST:** `GET /api/v1/analytics/downtime` · **Permission:** `insights:view` · **Effect:** read · **MCP:** tool `analytics_downtime`
 
@@ -2328,7 +2328,7 @@ Per machine: failures (entries into DOWN), mean time to repair and mean time bet
 
 ### `analytics.oee`: OEE by machine
 
-Overall equipment effectiveness per machine: availability, performance and quality (0–1) with good / scrap quantities. A factor is null when its source data is missing (no routed work, no counts).
+Overall equipment effectiveness per machine: availability × performance × quality (0–1), from status time, task-type standard run minutes and good / scrap counts. Standard loss model: planned time is every status but OFFLINE and MAINTENANCE (planned maintenance); DOWN, CHANGEOVER and IDLE are availability losses within it. Performance credits each counted unit with its task type's std run minutes (setup earns nothing); `quantityWithoutStandard` > 0 means some units had no standard and performance is understated. A factor is null when its source data is missing (no status changes, no standards, no counts).
 
 **REST:** `GET /api/v1/analytics/oee` · **Permission:** `insights:view` · **Effect:** read · **MCP:** tool `analytics_oee`
 
@@ -2345,10 +2345,16 @@ Overall equipment effectiveness per machine: availability, performance and quali
 | --- | --- | --- | --- |
 | `ssuId` | string \| null | yes | SSU external id |
 | `ssuName` | string \| null | yes |  |
-| `plannedSeconds` | number | yes |  |
-| `downtimeSeconds` | number | yes |  |
+| `plannedSeconds` | number | yes | Every status but OFFLINE and MAINTENANCE |
+| `downtimeSeconds` | number | yes | DOWN: unplanned stops (availability loss) |
+| `changeoverSeconds` | number | yes | CHANGEOVER: setup between jobs (availability loss) |
+| `idleSeconds` | number | yes | IDLE: scheduled but not producing (availability loss) |
+| `maintenanceSeconds` | number | yes | MAINTENANCE: planned maintenance, outside planned time |
+| `offlineSeconds` | number | yes | OFFLINE: outside planned time |
+| `runSeconds` | number | yes | Planned − (down + changeover + idle) |
 | `availability` | number \| null | yes |  |
 | `performance` | number \| null | yes | Can exceed 1 when the line beats its standards |
+| `quantityWithoutStandard` | number | yes | Counted units whose task type has no std run minutes; performance is understated |
 | `quality` | number \| null | yes |  |
 | `goodQuantity` | number | yes |  |
 | `scrapQuantity` | number | yes |  |
