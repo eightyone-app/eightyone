@@ -176,6 +176,29 @@ Tasks, newest first. Everything in EightyOne is a task (work-order operations, m
 | `createdAt` | string (date-time) | yes |  |
 | `updatedAt` | string (date-time) | yes |  |
 
+### `tasks.query`: Query the tasks table
+
+One page of the dashboard tasks table: every task you can see (done included), newest first unless sorted, filtered by the table's columns. Rows are the table's own shape.
+
+**Permission:** any member of the company · **Effect:** read · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer |  | Page size (1–1000, default 100) |
+| `offset` | integer |  | Rows to skip |
+| `sort` | object |  |  |
+| `filter` | object |  |  |
+| `dateRange` | object |  | Only tasks whose start–end overlaps [from, to) (the calendar) |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | integer | yes |  |
+| `externalId` | string | yes |  |
+
 ### `tasks.get`: Get a task
 
 One task by its id.
@@ -949,6 +972,28 @@ Resolve a scanned line-item barcode to the SSU (machine / location) whose storag
 | `imageUrl` | string \| null | yes |  |
 | `isActive` | boolean | yes |  |
 | `location` | any \| null | yes | GeoJSON point (PostGIS geometry), or null |
+
+### `stock_transactions.query`: Query the Transfers page
+
+One page of the dashboard's Transfers list: transfers (a stock transaction group, or a movement with none), newest first, with every line of each, filtered by direction and search, plus the company's counts for the summary tiles.
+
+**Permission:** `inventory:view` · **Effect:** read · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer |  | Transfers per page (1–200, default 50) |
+| `offset` | integer |  | Transfers to skip |
+| `direction` | `all` \| `in` \| `out` \| `internal` |  |  |
+| `search` | string |  | Matches the transfer's id or name, locations, task, items |
+| `today` | object |  | The viewer's local day, for the 'today' count |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | integer | yes |  |
 
 ### `stock_transactions.list`: Export stock movements
 

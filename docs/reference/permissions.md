@@ -192,7 +192,7 @@ Capabilities: `config.apply`, `products.batch_upsert`
 
 View Inventory
 
-Capabilities: `accounting.inventory_differences`, `customers.list`, `inventory.stock_levels`, `inventory_counts.get`, `inventory_counts.list`, `shipments.get`, `shipments.list`, `stock_transactions.list`, `storage_units.get`, `storage_units.list`
+Capabilities: `accounting.inventory_differences`, `customers.list`, `inventory.stock_levels`, `inventory_counts.get`, `inventory_counts.list`, `shipments.get`, `shipments.list`, `stock_transactions.list`, `stock_transactions.query`, `storage_units.get`, `storage_units.list`
 
 ## `inventory:manage`
 
