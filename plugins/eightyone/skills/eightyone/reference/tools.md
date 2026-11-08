@@ -60,7 +60,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`shipments_get`**: A shipment with its lines.
 - **`shipments_list`**: Shipments to customers, newest first: draft (being prepared), shipped or cancelled.
 - **`shipments_ship`** (changes data): Confirm a draft shipment left: each line's goods come out of stock, written to the customer. For a customer that is an EightyOne company, the goods arrive in their transit. Refused if any line lacks the stock, names a lot that isn't available, or takes another customer's consigned stock. Needs 'Manage inventory'. Preview it first.
-- **`ssus_get`**: One SSU by its external id, with the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
+- **`ssus_get`**: One SSU by its external id, with the site it stands on (and that site's client), and the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
 - **`ssus_list`**: The company's SSUs (sub-site units: machines, assets, locations within a site), newest first.
 - **`stock_transactions_list`**: The stock movement ledger (consumption, receipts, transfers, shipments), newest first, for pull-based ERP sync. Quantities only.
 - **`stock_transfer`** (changes data): Move stock between storage units, or between bins in one unit, as the dashboard's transfers do: name the product by SKU, and the lot or serial when it's tracked. It can't move more than is there. Needs 'Manage inventory'.

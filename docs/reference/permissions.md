@@ -20,6 +20,10 @@ See pre-active tasks on mobile
 
 Create tasks
 
+## `tasks:create_any_user_generated`
+
+Create user-generated tasks for any team
+
 ## `tasks:delete`
 
 Delete tasks

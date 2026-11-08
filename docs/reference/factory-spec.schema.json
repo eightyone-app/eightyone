@@ -1718,6 +1718,7 @@
                 "tasks:view_my_teams",
                 "tasks:view_pre_active",
                 "tasks:create",
+                "tasks:create_any_user_generated",
                 "tasks:delete",
                 "tasks:reassign",
                 "tasks:change_status_mobile",

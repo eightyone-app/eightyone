@@ -6498,6 +6498,7 @@
                                   "tasks:view_my_teams",
                                   "tasks:view_pre_active",
                                   "tasks:create",
+                                  "tasks:create_any_user_generated",
                                   "tasks:delete",
                                   "tasks:reassign",
                                   "tasks:change_status_mobile",
@@ -9042,6 +9043,7 @@
                                 "tasks:view_my_teams",
                                 "tasks:view_pre_active",
                                 "tasks:create",
+                                "tasks:create_any_user_generated",
                                 "tasks:delete",
                                 "tasks:reassign",
                                 "tasks:change_status_mobile",
@@ -11405,6 +11407,7 @@
                                   "tasks:view_my_teams",
                                   "tasks:view_pre_active",
                                   "tasks:create",
+                                  "tasks:create_any_user_generated",
                                   "tasks:delete",
                                   "tasks:reassign",
                                   "tasks:change_status_mobile",
@@ -13959,6 +13962,7 @@
                                   "tasks:view_my_teams",
                                   "tasks:view_pre_active",
                                   "tasks:create",
+                                  "tasks:create_any_user_generated",
                                   "tasks:delete",
                                   "tasks:reassign",
                                   "tasks:change_status_mobile",
@@ -30043,7 +30047,7 @@
       "get": {
         "operationId": "ssus.get",
         "summary": "Get an SSU",
-        "description": "One SSU by its external id, with the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.\n\nPermission: `member`.",
+        "description": "One SSU by its external id, with the site it stands on (and that site's client), and the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.\n\nPermission: `member`.",
         "tags": [
           "SSUs"
         ],
@@ -30122,6 +30126,52 @@
                       "type": "string",
                       "format": "date-time"
                     },
+                    "site": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Site external id"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "client": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "description": "Client external system id, as in clients.get",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "client"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The site the SSU stands on, or null if it's on none"
+                    },
                     "guidance": {
                       "anyOf": [
                         {
@@ -30165,6 +30215,7 @@
                     "sku",
                     "createdAt",
                     "updatedAt",
+                    "site",
                     "guidance"
                   ],
                   "additionalProperties": false

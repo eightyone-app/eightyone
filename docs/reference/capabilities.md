@@ -846,7 +846,7 @@ The company's SSUs (sub-site units: machines, assets, locations within a site), 
 
 ### `ssus.get`: Get an SSU
 
-One SSU by its external id, with the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
+One SSU by its external id, with the site it stands on (and that site's client), and the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
 
 **REST:** `GET /api/v1/ssus/:id` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `ssus_get`
 
@@ -871,6 +871,7 @@ One SSU by its external id, with the company's guidance note on it for agents (i
 | `sku` | string \| null | yes | Model-level SKU / part number (not a serial number) |
 | `createdAt` | string (date-time) | yes |  |
 | `updatedAt` | string (date-time) | yes |  |
+| `site` | object \| null | yes | The site the SSU stands on, or null if it's on none |
 | `guidance` | object \| null | yes | What the company's administrators tell agents about this SSU |
 
 ### `ssus.update`: Update an SSU

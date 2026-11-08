@@ -1534,7 +1534,7 @@ The company's SSUs (sub-site units: machines, assets, locations within a site), 
 
 ### `ssus.get`: Get an SSU
 
-One SSU by its external id, with the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
+One SSU by its external id, with the site it stands on (and that site's client), and the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
 
 **REST:** `GET /api/v1/ssus/:id` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `ssus_get`
 
@@ -1559,6 +1559,7 @@ One SSU by its external id, with the company's guidance note on it for agents (i
 | `sku` | string \| null | yes | Model-level SKU / part number (not a serial number) |
 | `createdAt` | string (date-time) | yes |  |
 | `updatedAt` | string (date-time) | yes |  |
+| `site` | object \| null | yes | The site the SSU stands on, or null if it's on none |
 | `guidance` | object \| null | yes | What the company's administrators tell agents about this SSU |
 
 ### `ssus.update`: Update an SSU
@@ -5503,6 +5504,10 @@ See pre-active tasks on mobile
 
 Create tasks
 
+## `tasks:create_any_user_generated`
+
+Create user-generated tasks for any team
+
 ## `tasks:delete`
 
 Delete tasks
@@ -5954,7 +5959,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`shipments_get`**: A shipment with its lines.
 - **`shipments_list`**: Shipments to customers, newest first: draft (being prepared), shipped or cancelled.
 - **`shipments_ship`** (changes data): Confirm a draft shipment left: each line's goods come out of stock, written to the customer. For a customer that is an EightyOne company, the goods arrive in their transit. Refused if any line lacks the stock, names a lot that isn't available, or takes another customer's consigned stock. Needs 'Manage inventory'. Preview it first.
-- **`ssus_get`**: One SSU by its external id, with the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
+- **`ssus_get`**: One SSU by its external id, with the site it stands on (and that site's client), and the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
 - **`ssus_list`**: The company's SSUs (sub-site units: machines, assets, locations within a site), newest first.
 - **`stock_transactions_list`**: The stock movement ledger (consumption, receipts, transfers, shipments), newest first, for pull-based ERP sync. Quantities only.
 - **`stock_transfer`** (changes data): Move stock between storage units, or between bins in one unit, as the dashboard's transfers do: name the product by SKU, and the lot or serial when it's tracked. It can't move more than is there. Needs 'Manage inventory'.

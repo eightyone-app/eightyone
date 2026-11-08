@@ -13,4 +13,4 @@ The plugin adds the skill and connects the EightyOne MCP server (`https://api.ei
 
 For Claude apps and other agents: [docs/downloads/eightyone-skill.zip](docs/downloads/eightyone-skill.zip), uploaded as a custom skill.
 
-Version 2026.1105.34 (API 4.0.0).
+Version 2026.1108.35 (API 4.0.0).
