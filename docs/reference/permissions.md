@@ -34,6 +34,8 @@ Capabilities: `tasks.delete`
 
 Reassign tasks
 
+Capabilities: `tasks.subcontractor_link`
+
 ## `tasks:change_status_mobile`
 
 Change task status from mobile

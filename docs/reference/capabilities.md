@@ -413,6 +413,26 @@ Delete a task, as the dashboard does: a task you sent to a partner withdraws the
 | --- | --- | --- | --- |
 | `id` | string | yes |  |
 
+### `tasks.subcontractor_link`: Copy a subcontractor's portal link
+
+The portal link of the name-only subcontractor on a task, for you to send them yourself. A subcontractor with an email gets its link by email instead, so it has none to copy. The link opens all of that subcontractor's tasks in this company, and is valid for 14 days from when it was issued; adding an email to the subcontractor cancels it.
+
+**Permission:** `tasks:reassign` · **Effect:** write · **Idempotency-Key:** not accepted · **Dry run:** not supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | Task external id |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | yes | The portal link |
+| `expiresAt` | string (date-time) | yes |  |
+| `subContractor` | object | yes |  |
+
 ### `tasks.get_form`: A task's form
 
 The fields a task's form records, in order: type, whether it's required, the choices of a select, the limits of a measurement, whether a condition hides it, and the current answer. Answer them with tasks_submit_form.
