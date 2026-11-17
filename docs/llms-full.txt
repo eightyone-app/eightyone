@@ -1657,6 +1657,31 @@ The history that keeps an SSU from being deleted (tasks, stock, downtime, signal
 | `label` | string | yes |  |
 | `count` | integer | yes | Stops at 1000 ("1000+") |
 
+### `ssus.parameter_history`: Machine parameter history
+
+The machine parameters set up on an SSU (machine), one run per task, newest first: what a setup specialist dialed in, for which product and work order, by whom and when. Recorded by a form's parameters field when the form is submitted. Filter by product (the usual question: what did we set the last time we ran this product here?). With taskId (and no productId), the product is that task's work order's, else the one the machine is running now; the task's own run is left out. Without either, every product's runs. Also lists the products the machine has history for.
+
+**REST:** `GET /api/v1/ssus/:id/parameter-history` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `ssus_parameter_history`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | SSU external id |
+| `productId` | string |  | Product external id: only this product's runs |
+| `taskId` | string |  | Task external id: the task being filled in (its product is the default, its run is left out) |
+| `limit` | integer |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ssu` | object | yes |  |
+| `product` | object \| null | yes | The product the runs are filtered by; null = every product |
+| `runningProduct` | object \| null | yes | The product of the work order the machine runs now |
+| `products` | object[] | yes | The products this machine has parameter history for, most recently run first |
+| `runs` | object[] | yes |  |
+
 ## Inventory
 
 ### `line_items.find_ssu_by_barcode`: Find the SSU holding a scanned unit
@@ -6028,6 +6053,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`shipments_ship`** (changes data): Confirm a draft shipment left: each line's goods come out of stock, written to the customer. For a customer that is an EightyOne company, the goods arrive in their transit. Refused if any line lacks the stock, names a lot that isn't available, or takes another customer's consigned stock. Needs 'Manage inventory'. Preview it first.
 - **`ssus_get`**: One SSU by its external id, with the site it stands on (and that site's client), and the company's guidance note on it for agents (if any): read it before drawing conclusions about this machine.
 - **`ssus_list`**: The company's SSUs (sub-site units: machines, assets, locations within a site), newest first.
+- **`ssus_parameter_history`**: The machine parameters set up on an SSU (machine), one run per task, newest first: what a setup specialist dialed in, for which product and work order, by whom and when. Recorded by a form's parameters field when the form is submitted. Filter by product (the usual question: what did we set the last time we ran this product here?). With taskId (and no productId), the product is that task's work order's, else the one the machine is running now; the task's own run is left out. Without either, every product's runs. Also lists the products the machine has history for.
 - **`stock_transactions_list`**: The stock movement ledger (consumption, receipts, transfers, shipments), newest first, for pull-based ERP sync. Quantities only.
 - **`stock_transfer`** (changes data): Move stock between storage units, or between bins in one unit, as the dashboard's transfers do: name the product by SKU, and the lot or serial when it's tracked. It can't move more than is there. Needs 'Manage inventory'.
 - **`storage_units_get`**: A storage unit and everything in it: per product, bin (goods / bads / quarantine), lot and serial.

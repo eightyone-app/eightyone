@@ -969,6 +969,31 @@ The history that keeps an SSU from being deleted (tasks, stock, downtime, signal
 | `label` | string | yes |  |
 | `count` | integer | yes | Stops at 1000 ("1000+") |
 
+### `ssus.parameter_history`: Machine parameter history
+
+The machine parameters set up on an SSU (machine), one run per task, newest first: what a setup specialist dialed in, for which product and work order, by whom and when. Recorded by a form's parameters field when the form is submitted. Filter by product (the usual question: what did we set the last time we ran this product here?). With taskId (and no productId), the product is that task's work order's, else the one the machine is running now; the task's own run is left out. Without either, every product's runs. Also lists the products the machine has history for.
+
+**REST:** `GET /api/v1/ssus/:id/parameter-history` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `ssus_parameter_history`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | SSU external id |
+| `productId` | string |  | Product external id: only this product's runs |
+| `taskId` | string |  | Task external id: the task being filled in (its product is the default, its run is left out) |
+| `limit` | integer |  |  |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ssu` | object | yes |  |
+| `product` | object \| null | yes | The product the runs are filtered by; null = every product |
+| `runningProduct` | object \| null | yes | The product of the work order the machine runs now |
+| `products` | object[] | yes | The products this machine has parameter history for, most recently run first |
+| `runs` | object[] | yes |  |
+
 ## Inventory
 
 ### `line_items.find_ssu_by_barcode`: Find the SSU holding a scanned unit
