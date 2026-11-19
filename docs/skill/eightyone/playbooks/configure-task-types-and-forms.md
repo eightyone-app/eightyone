@@ -32,7 +32,7 @@ Start with `config_export` and copy the `taskTypes` you're changing. Plan only t
   - `useSubmittedStatus`: completion is reviewed (through "submitted").
   - `requiresFailureCoding`: can't complete without problem / cause / remedy codes (use it for maintenance).
   - `recurrenceHours`: completing a task schedules the next one (time-based preventive maintenance).
-- **`ssuStatusOnOpen` / `ssuStatusOnComplete`** set the machine's status when a task opens or completes. Statuses are the company's names.
+- **`ssuStatusOnOpen` / `ssuStatusOnDispatch` / `ssuStatusOnComplete`** set the machine's status when a task opens, is dispatched (work starts) or completes. On-complete wins over on-dispatch, which wins over on-open; a task opened already dispatched gets the on-dispatch status. Statuses are the company's names.
 - **People.** `team` makes it the team's work: members see and can take it. `defaultAssignee` and `defaultSubcontractor` are emails of existing people. `requiredSkill` and `minRank` limit who may do it.
 
 ## Forms

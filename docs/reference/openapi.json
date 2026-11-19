@@ -5714,6 +5714,19 @@
                                 }
                               ]
                             },
+                            "ssuStatusOnDispatch": {
+                              "description": "SSU status set when it is dispatched (work starts)",
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
                             "ssuStatusOnComplete": {
                               "description": "SSU status set when it completes",
                               "anyOf": [
@@ -8260,6 +8273,19 @@
                               }
                             ]
                           },
+                          "ssuStatusOnDispatch": {
+                            "description": "SSU status set when it is dispatched (work starts)",
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 255
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "ssuStatusOnComplete": {
                             "description": "SSU status set when it completes",
                             "anyOf": [
@@ -10614,6 +10640,19 @@
                             },
                             "ssuStatusOnOpen": {
                               "description": "SSU status set when a task of this type opens",
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "ssuStatusOnDispatch": {
+                              "description": "SSU status set when it is dispatched (work starts)",
                               "anyOf": [
                                 {
                                   "type": "string",
@@ -13170,6 +13209,19 @@
                             },
                             "ssuStatusOnOpen": {
                               "description": "SSU status set when a task of this type opens",
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "ssuStatusOnDispatch": {
+                              "description": "SSU status set when it is dispatched (work starts)",
                               "anyOf": [
                                 {
                                   "type": "string",

@@ -934,6 +934,19 @@
               }
             ]
           },
+          "ssuStatusOnDispatch": {
+            "description": "SSU status set when it is dispatched (work starts)",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "ssuStatusOnComplete": {
             "description": "SSU status set when it completes",
             "anyOf": [
