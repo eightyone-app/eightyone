@@ -1142,7 +1142,7 @@ The fields a task's form records, in order: type, whether it's required, the cho
 
 ### `tasks.submit_form`: Fill in a task's form
 
-Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Preview it first.
+Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Answers to a closed task's submitted form are an edit: it needs the 'Edit submitted forms' permission, is audited, marks the form as edited after submit, and moves only the stock difference. Preview it first.
 
 **REST:** `POST /api/v1/tasks/:id/form` · **Permission:** any member of the company · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** preview (checks the change and lists its effects, without making it) · **MCP:** tool `tasks_submit_form`
 
@@ -5614,6 +5614,10 @@ Capabilities: `tasks.subcontractor_link`
 
 Change task status from mobile
 
+## `tasks:edit_submitted_form`
+
+Edit a closed task's submitted form
+
 ## `task_types:view`
 
 View Task types & work centers
@@ -6068,7 +6072,7 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`tasks_get_form`**: The fields a task's form records, in order: type, whether it's required, the choices of a select, the limits of a measurement, whether a condition hides it, and the current answer. Answer them with tasks_submit_form.
 - **`tasks_list`**: Tasks, newest first. Everything in EightyOne is a task (work-order operations, maintenance, inspections, NCRs, approvals…). Open tasks only unless a status is given or includeCompleted=true. Each task names its assignees (personnel id, name, photo, color); assigneeId keeps one person's tasks, and the total counts them. Without the 'See all tasks' permission you see only tasks assigned to you, plus your teams' tasks with 'See tasks for my team'.
 - **`tasks_record_counts`** (changes data): Add good and scrap quantities to a running work-order operation or producing task, as operators do from the app. Counts add up and feed OEE; the output posts to stock once, when the task completes. To count at completion instead, pass goodQuantity / scrapQuantity to tasks.update with the status.
-- **`tasks_submit_form`** (changes data): Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Preview it first.
+- **`tasks_submit_form`** (changes data): Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Answers to a closed task's submitted form are an edit: it needs the 'Edit submitted forms' permission, is audited, marks the form as edited after submit, and moves only the stock difference. Preview it first.
 - **`tasks_update`** (changes data): Change a task, with the dashboard's rules: status changes need 'Change task status from mobile' (assignees may still complete their own work), reassigning needs 'Reassign tasks', blocked tasks can't progress, producing tasks complete with goodQuantity / scrapQuantity (counts during the run: tasks_record_counts), maintenance types may need failure codes (problemCodeId, causeCodeId, remedyCodeId) to complete, 'incomplete' needs a reason and can create a follow-up (createFollowUp), 'declined' needs a reason. Tasks sent to a partner only accept details, dueDate and priorityId.
 - **`work_orders_get`**: One work order with its operations (the traveler's tasks) and their status.
 - **`work_orders_list`**: The company's work orders, newest first, optionally by status. Use for ERP pull-sync or to see what production is working on.

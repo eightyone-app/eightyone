@@ -6502,6 +6502,7 @@
                                   "tasks:delete",
                                   "tasks:reassign",
                                   "tasks:change_status_mobile",
+                                  "tasks:edit_submitted_form",
                                   "task_types:view",
                                   "task_types:manage",
                                   "mobile_builder:view",
@@ -9047,6 +9048,7 @@
                                 "tasks:delete",
                                 "tasks:reassign",
                                 "tasks:change_status_mobile",
+                                "tasks:edit_submitted_form",
                                 "task_types:view",
                                 "task_types:manage",
                                 "mobile_builder:view",
@@ -11411,6 +11413,7 @@
                                   "tasks:delete",
                                   "tasks:reassign",
                                   "tasks:change_status_mobile",
+                                  "tasks:edit_submitted_form",
                                   "task_types:view",
                                   "task_types:manage",
                                   "mobile_builder:view",
@@ -13966,6 +13969,7 @@
                                   "tasks:delete",
                                   "tasks:reassign",
                                   "tasks:change_status_mobile",
+                                  "tasks:edit_submitted_form",
                                   "task_types:view",
                                   "task_types:manage",
                                   "mobile_builder:view",
@@ -35412,7 +35416,7 @@
       "post": {
         "operationId": "tasks.submit_form",
         "summary": "Fill in a task's form",
-        "description": "Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Preview it first.\n\nPermission: `member`.",
+        "description": "Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Answers to a closed task's submitted form are an edit: it needs the 'Edit submitted forms' permission, is audited, marks the form as edited after submit, and moves only the stock difference. Preview it first.\n\nPermission: `member`.",
         "tags": [
           "Tasks"
         ],

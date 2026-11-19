@@ -1722,6 +1722,7 @@
                 "tasks:delete",
                 "tasks:reassign",
                 "tasks:change_status_mobile",
+                "tasks:edit_submitted_form",
                 "task_types:view",
                 "task_types:manage",
                 "mobile_builder:view",

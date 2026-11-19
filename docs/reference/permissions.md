@@ -40,6 +40,10 @@ Capabilities: `tasks.subcontractor_link`
 
 Change task status from mobile
 
+## `tasks:edit_submitted_form`
+
+Edit a closed task's submitted form
+
 ## `task_types:view`
 
 View Task types & work centers

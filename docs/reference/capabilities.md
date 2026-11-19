@@ -454,7 +454,7 @@ The fields a task's form records, in order: type, whether it's required, the cho
 
 ### `tasks.submit_form`: Fill in a task's form
 
-Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Preview it first.
+Answer a task's form fields by title (tasks_get_form lists them), and optionally complete the task (status done or submitted) or mark it incomplete, as the app does. Completing needs every required field; measurements outside their limits open an NCR; machine-status fields set the machine's status. Counts and failure codes go with the completion, as in tasks_update. Answers to a closed task's submitted form are an edit: it needs the 'Edit submitted forms' permission, is audited, marks the form as edited after submit, and moves only the stock difference. Preview it first.
 
 **REST:** `POST /api/v1/tasks/:id/form` · **Permission:** any member of the company · **Effect:** write · **Idempotency-Key:** accepted · **Dry run:** preview (checks the change and lists its effects, without making it) · **MCP:** tool `tasks_submit_form`
 
