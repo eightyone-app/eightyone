@@ -8,6 +8,8 @@ A user's permissions are the union of their roles' permission groups (Settings â
 
 See all tasks (not only own)
 
+Capabilities: `ssus.form_record_csv`, `ssus.form_record_pdf`, `ssus.form_record`
+
 ## `tasks:view_my_teams`
 
 See tasks for my teams
@@ -177,6 +179,8 @@ View audit logs
 ## `data:export`
 
 Export data
+
+Capabilities: `ssus.form_record_csv`, `ssus.form_record_pdf`
 
 ## `data:import`
 

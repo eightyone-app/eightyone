@@ -994,6 +994,91 @@ The machine parameters set up on an SSU (machine), one run per task, newest firs
 | `products` | object[] | yes | The products this machine has parameter history for, most recently run first |
 | `runs` | object[] | yes |  |
 
+### `ssus.form_record`: Machine form record
+
+Every submitted form filled in on an SSU (machine) in a window, with every answer: its tasks' forms, the issue reports filed on it, and its sub-task forms in bulk rounds (QC rounds); a round's own form is left out. Windowed by submit time (default the last 30 days, at most 366); filter by task type and status; newest first by default.
+
+**REST:** `GET /api/v1/ssus/:id/form-record` · **Permission:** `tasks:view_all` · **Effect:** read · **MCP:** via `capabilities_call`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | SSU external id |
+| `from` | string (date-time) \| string (date) |  | Forms submitted at or after this time (ISO 8601). Default: 30 days before `to` |
+| `to` | string (date-time) \| string (date) |  | Forms submitted before this time (ISO 8601). Default: now. At most 366 days after `from` |
+| `taskTypeIds` | string |  | Comma-separated task type external ids: only forms of these types |
+| `status` | `all` \| `done` \| `incomplete` \| `open` |  | The task's (or sub-task's) status: done (incl. submitted for review), incomplete, open (not closed) |
+| `sort` | `newest` \| `oldest` \| `task_type` |  | Order by submit time, or by task type |
+| `limit` | integer |  | Page size (1–100, default 50) |
+| `offset` | integer |  | Rows to skip |
+
+**Output:** `{ data, pagination }`, each item:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `kind` | `task` \| `sub_task` \| `issue_report` | yes | A task's form, a bulk round's sub-task form for this machine, or the issue report that opened a task |
+| `taskId` | string | yes | Task external id (for a sub-task: its round's) |
+| `title` | string | yes |  |
+| `roundTitle` | string \| null | yes | The bulk round a sub-task belongs to |
+| `taskType` | string \| null | yes |  |
+| `workOrderCode` | string \| null | yes |  |
+| `status` | string | yes |  |
+| `submittedAt` | string (date-time) | yes |  |
+| `submittedBy` | string \| null | yes |  |
+| `editedAt` | string (date-time) \| null | yes | Last edit after submit |
+| `editCount` | integer | yes |  |
+| `values` | object[] | yes |  |
+
+### `ssus.form_record_csv`: Export a machine form record (CSV)
+
+The machine form record (ssus.form_record, same filters) as CSV: one row per answer. Refused (400) when more than 2000 forms match: narrow the range or filters.
+
+**REST:** `GET /api/v1/ssus/:id/form-record/csv` · **Permission:** `tasks:view_all` + `data:export` · **Effect:** read · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | SSU external id |
+| `from` | string (date-time) \| string (date) |  | Forms submitted at or after this time (ISO 8601). Default: 30 days before `to` |
+| `to` | string (date-time) \| string (date) |  | Forms submitted before this time (ISO 8601). Default: now. At most 366 days after `from` |
+| `taskTypeIds` | string |  | Comma-separated task type external ids: only forms of these types |
+| `status` | `all` \| `done` \| `incomplete` \| `open` |  | The task's (or sub-task's) status: done (incl. submitted for review), incomplete, open (not closed) |
+| `sort` | `newest` \| `oldest` \| `task_type` |  | Order by submit time, or by task type |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filename` | string | yes |  |
+| `forms` | integer | yes |  |
+| `csv` | string | yes |  |
+
+### `ssus.form_record_pdf`: Export a machine form record (PDF)
+
+The machine form record (ssus.form_record, same filters) as a printable PDF that states its range and filters. Returns a viewing URL that expires after an hour. Refused (400) when more than 150 forms match: narrow the range or filters.
+
+**REST:** `GET /api/v1/ssus/:id/form-record/pdf` · **Permission:** `tasks:view_all` + `data:export` · **Effect:** read · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | SSU external id |
+| `from` | string (date-time) \| string (date) |  | Forms submitted at or after this time (ISO 8601). Default: 30 days before `to` |
+| `to` | string (date-time) \| string (date) |  | Forms submitted before this time (ISO 8601). Default: now. At most 366 days after `from` |
+| `taskTypeIds` | string |  | Comma-separated task type external ids: only forms of these types |
+| `status` | `all` \| `done` \| `incomplete` \| `open` |  | The task's (or sub-task's) status: done (incl. submitted for review), incomplete, open (not closed) |
+| `sort` | `newest` \| `oldest` \| `task_type` |  | Order by submit time, or by task type |
+| `timeZone` | string |  | IANA time zone the PDF prints its times in (e.g. Asia/Jerusalem). Default: UTC |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | yes |  |
+
 ## Inventory
 
 ### `line_items.find_ssu_by_barcode`: Find the SSU holding a scanned unit

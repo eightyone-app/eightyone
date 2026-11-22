@@ -102,6 +102,7 @@ Not listed as tools, to keep the list short. Find them with `capabilities_search
 - `partner_deliveries.list`: List partner deliveries
 - `personnel.get`: Get a person
 - `reason_codes.list`: List reason codes
+- `ssus.form_record`: Machine form record
 - `teams.list`: List teams
 - `webhooks.delivery_logs`: Webhook delivery log
 - `webhooks.event_types`: List webhook event types
