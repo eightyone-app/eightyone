@@ -2572,7 +2572,7 @@ Subscribe a URL to events. Deliveries are Standard Webhooks messages signed with
 | --- | --- | --- | --- |
 | `name` | string | yes |  |
 | `targetUrl` | string (uri) | yes | HTTPS endpoint; private and internal addresses are refused |
-| `eventTypes` | `task.status_changed` \| `task.created` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] | yes |  |
+| `eventTypes` | `task.status_changed` \| `task.created` \| `task.subtask_status_changed` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] | yes |  |
 | `headers` | object |  | Extra headers sent with each delivery |
 
 **Output**
@@ -2631,7 +2631,7 @@ Change a webhook's name, URL, events, headers or active flag.
 | `id` | string | yes |  |
 | `name` | string |  |  |
 | `targetUrl` | string (uri) |  |  |
-| `eventTypes` | `task.status_changed` \| `task.created` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] |  |  |
+| `eventTypes` | `task.status_changed` \| `task.created` \| `task.subtask_status_changed` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] |  |  |
 | `isActive` | boolean |  |  |
 | `headers` | object |  |  |
 
@@ -2676,7 +2676,7 @@ Recent deliveries of one webhook with their status, response and timing.
 | `limit` | integer |  | Page size (1–100, default 50) |
 | `offset` | integer |  | Rows to skip |
 | `status` | `pending` \| `success` \| `failed` \| `retrying` |  |  |
-| `eventType` | `task.status_changed` \| `task.created` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received` |  |  |
+| `eventType` | `task.status_changed` \| `task.created` \| `task.subtask_status_changed` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received` |  |  |
 
 **Output:** `{ data, pagination }`, each item:
 
@@ -5348,6 +5348,165 @@ A task moved to another status (open, preparation, ready, dispatched, submitted,
     "ssu",
     "previousStatus",
     "status"
+  ],
+  "additionalProperties": false
+}
+```
+
+### `task.subtask_status_changed`
+
+One machine of a bulk task (a round over several machines) moved to another status: done, incomplete or dispatched. `task` is the bulk task, `ssu` the machine.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Task external id"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priorityId": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Priority level, as the API uses it"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dueDate": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "ISO 8601"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "workOrderId": {
+          "description": "Work order external id, for an operation",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "status",
+        "priorityId",
+        "type",
+        "dueDate",
+        "workOrderId"
+      ],
+      "additionalProperties": false
+    },
+    "ssu": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "SSU external id"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "subtask": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "previousStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "incompleteReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "previousStatus",
+        "status",
+        "incompleteReason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "task",
+    "ssu",
+    "subtask"
   ],
   "additionalProperties": false
 }

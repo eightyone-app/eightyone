@@ -1052,6 +1052,165 @@ A task moved to another status (open, preparation, ready, dispatched, submitted,
 }
 ```
 
+### `task.subtask_status_changed`
+
+One machine of a bulk task (a round over several machines) moved to another status: done, incomplete or dispatched. `task` is the bulk task, `ssu` the machine.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Task external id"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priorityId": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Priority level, as the API uses it"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dueDate": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "ISO 8601"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "workOrderId": {
+          "description": "Work order external id, for an operation",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "status",
+        "priorityId",
+        "type",
+        "dueDate",
+        "workOrderId"
+      ],
+      "additionalProperties": false
+    },
+    "ssu": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "SSU external id"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "subtask": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "previousStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "incompleteReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "previousStatus",
+        "status",
+        "incompleteReason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "task",
+    "ssu",
+    "subtask"
+  ],
+  "additionalProperties": false
+}
+```
+
 ### `work_order.completed`
 
 A work order's last operation was done.

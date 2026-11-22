@@ -36900,6 +36900,7 @@
                       "enum": [
                         "task.status_changed",
                         "task.created",
+                        "task.subtask_status_changed",
                         "client.created",
                         "work_order.released",
                         "work_order.completed",
@@ -37358,6 +37359,7 @@
                       "enum": [
                         "task.status_changed",
                         "task.created",
+                        "task.subtask_status_changed",
                         "client.created",
                         "work_order.released",
                         "work_order.completed",
@@ -37739,6 +37741,7 @@
               "enum": [
                 "task.status_changed",
                 "task.created",
+                "task.subtask_status_changed",
                 "client.created",
                 "work_order.released",
                 "work_order.completed",
@@ -40375,6 +40378,222 @@
                       "ssu",
                       "previousStatus",
                       "status"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Received. Anything else is retried, up to 6 attempts over a day."
+          }
+        }
+      }
+    },
+    "task.subtask_status_changed": {
+      "post": {
+        "summary": "task.subtask_status_changed",
+        "description": "One machine of a bulk task (a round over several machines) moved to another status: done, incomplete or dispatched. `task` is the bulk task, `ssu` the machine.",
+        "parameters": [
+          {
+            "name": "webhook-id",
+            "in": "header",
+            "required": true,
+            "description": "The message id: the same for every retry of this event (de-duplicate on it)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "webhook-timestamp",
+            "in": "header",
+            "required": true,
+            "description": "Unix seconds when this attempt was sent (reject old ones to stop replays)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "webhook-signature",
+            "in": "header",
+            "required": true,
+            "description": "Space-separated \"v1a,<base64 Ed25519 signature>\" over \"<webhook-id>.<webhook-timestamp>.<raw body>\"; verify with a key from /api/v1/webhook-signing-keys",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "type",
+                  "timestamp",
+                  "data"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "task.subtask_status_changed"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "task": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Task external id"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "priorityId": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Priority level, as the API uses it"
+                          },
+                          "type": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "dueDate": {
+                            "anyOf": [
+                              {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ],
+                                "description": "ISO 8601"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workOrderId": {
+                            "description": "Work order external id, for an operation",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "status",
+                          "priorityId",
+                          "type",
+                          "dueDate",
+                          "workOrderId"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "ssu": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "SSU external id"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "subtask": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "previousStatus": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "incompleteReason": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "previousStatus",
+                          "status",
+                          "incompleteReason"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "task",
+                      "ssu",
+                      "subtask"
                     ],
                     "additionalProperties": false
                   }

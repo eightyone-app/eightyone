@@ -1884,7 +1884,7 @@ Subscribe a URL to events. Deliveries are Standard Webhooks messages signed with
 | --- | --- | --- | --- |
 | `name` | string | yes |  |
 | `targetUrl` | string (uri) | yes | HTTPS endpoint; private and internal addresses are refused |
-| `eventTypes` | `task.status_changed` \| `task.created` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] | yes |  |
+| `eventTypes` | `task.status_changed` \| `task.created` \| `task.subtask_status_changed` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] | yes |  |
 | `headers` | object |  | Extra headers sent with each delivery |
 
 **Output**
@@ -1943,7 +1943,7 @@ Change a webhook's name, URL, events, headers or active flag.
 | `id` | string | yes |  |
 | `name` | string |  |  |
 | `targetUrl` | string (uri) |  |  |
-| `eventTypes` | `task.status_changed` \| `task.created` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] |  |  |
+| `eventTypes` | `task.status_changed` \| `task.created` \| `task.subtask_status_changed` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received`[] |  |  |
 | `isActive` | boolean |  |  |
 | `headers` | object |  |  |
 
@@ -1988,7 +1988,7 @@ Recent deliveries of one webhook with their status, response and timing.
 | `limit` | integer |  | Page size (1–100, default 50) |
 | `offset` | integer |  | Rows to skip |
 | `status` | `pending` \| `success` \| `failed` \| `retrying` |  |  |
-| `eventType` | `task.status_changed` \| `task.created` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received` |  |  |
+| `eventType` | `task.status_changed` \| `task.created` \| `task.subtask_status_changed` \| `client.created` \| `work_order.released` \| `work_order.completed` \| `downtime.started` \| `downtime.ended` \| `lot.created` \| `stock.reorder_triggered` \| `handoff.received` \| `handoff.status_changed` \| `handoff.declined` \| `handoff.deleted` \| `partner_delivery.incoming` \| `partner_delivery.received` \| `partner_delivery.shortfall` \| `data_package.received` |  |  |
 
 **Output:** `{ data, pagination }`, each item:
 
