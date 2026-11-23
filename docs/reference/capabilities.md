@@ -165,6 +165,8 @@ Tasks, newest first. Everything in EightyOne is a task (work-order operations, m
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
 | `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
+| `lineItemId` | string \| null | yes | The barcoded unit on the SSU the task is about (line item external id); see line_items.history |
+| `unitVerifiedAt` | string (date-time) \| null | yes | When the technician scanned the task's unit on site |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
 | `declinedReason` | string \| null | yes |  |
@@ -227,6 +229,8 @@ One task by its id.
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
 | `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
+| `lineItemId` | string \| null | yes | The barcoded unit on the SSU the task is about (line item external id); see line_items.history |
+| `unitVerifiedAt` | string (date-time) \| null | yes | When the technician scanned the task's unit on site |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
 | `declinedReason` | string \| null | yes |  |
@@ -257,6 +261,7 @@ Create a task of a task type, exactly as the dashboard does: the type's defaults
 | `dueDate` | string (date-time) \| string (date) |  | Defaults to the type's SLA for the priority |
 | `priorityId` | integer |  |  |
 | `ssuId` | string |  | SSU external id |
+| `lineItemId` | string |  | A barcoded unit on that SSU (line item external id; ssus_units lists them) |
 | `externalSystemId` | string |  |  |
 | `fromStorageUnitId` | integer |  |  |
 | `toStorageUnitId` | integer |  |  |
@@ -282,6 +287,8 @@ Create a task of a task type, exactly as the dashboard does: the type's defaults
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
 | `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
+| `lineItemId` | string \| null | yes | The barcoded unit on the SSU the task is about (line item external id); see line_items.history |
+| `unitVerifiedAt` | string (date-time) \| null | yes | When the technician scanned the task's unit on site |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
 | `declinedReason` | string \| null | yes |  |
@@ -312,6 +319,7 @@ Change a task, with the dashboard's rules: status changes need 'Change task stat
 | `dueDate` | string (date-time) \| string (date) \| null |  |  |
 | `priorityId` | integer |  |  |
 | `ssuId` | string \| null |  | SSU external id, or null to clear |
+| `lineItemId` | string \| null |  | A barcoded unit on the task's SSU (line item external id), or null to clear. Moving the task to another SSU clears it unless given again |
 | `externalSystemId` | string |  |  |
 | `assigneeIds` | integer[] |  | Personnel ids: replaces the assignees |
 | `incompleteReason` | string |  |  |
@@ -340,6 +348,8 @@ Change a task, with the dashboard's rules: status changes need 'Change task stat
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
 | `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
+| `lineItemId` | string \| null | yes | The barcoded unit on the SSU the task is about (line item external id); see line_items.history |
+| `unitVerifiedAt` | string (date-time) \| null | yes | When the technician scanned the task's unit on site |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
 | `declinedReason` | string \| null | yes |  |
@@ -490,6 +500,8 @@ Answer a task's form fields by title (tasks_get_form lists them), and optionally
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
 | `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
+| `lineItemId` | string \| null | yes | The barcoded unit on the SSU the task is about (line item external id); see line_items.history |
+| `unitVerifiedAt` | string (date-time) \| null | yes | When the technician scanned the task's unit on site |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
 | `declinedReason` | string \| null | yes |  |
@@ -502,6 +514,31 @@ Answer a task's form fields by title (tasks_get_form lists them), and optionally
 | `updatedAt` | string (date-time) | yes |  |
 | `failedChecks` | string[] | yes |  |
 | `ncrId` | string \| null | yes |  |
+
+### `tasks.verify_unit`: Verify a task's unit on site
+
+The technician scans (or, for a damaged label, types) the barcode of the unit in front of them. The task's own unit: verified. Another barcoded unit on the task's SSU: 'mismatch', with both units, and nothing changes; call again with retarget: true to move the task to the scanned unit (verified, audited, and a 'Task moved to another unit' transfer alert tells the dispatcher). A code that is no unit on the SSU is refused.
+
+**Permission:** any member of the company · **Effect:** write · **Idempotency-Key:** not accepted · **Dry run:** supported · **MCP:** no
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | Task external id |
+| `code` | string | yes | The barcode scanned or typed |
+| `method` | `scan` \| `manual` |  | manual: typed in (a damaged label) |
+| `retarget` | boolean |  | Move the task to the scanned unit when it isn't the task's unit |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `result` | `verified` \| `mismatch` | yes |  |
+| `retargeted` | boolean | yes |  |
+| `unit` | object | yes | The unit scanned |
+| `expected` | object | yes | The unit the task names (before a retarget) |
+| `unitVerifiedAt` | string (date-time) \| null | yes |  |
 
 ## Task types
 
@@ -1079,6 +1116,28 @@ The machine form record (ssus.form_record, same filters) as a printable PDF that
 | --- | --- | --- | --- |
 | `url` | string | yes |  |
 
+### `ssus.units`: Barcoded units on an SSU
+
+The barcoded units (serialized line items, one per physical unit) on any of an SSU's storage units, in any bin, by product then barcode. These are the units a task on the SSU can name (lineItemId on tasks.create / tasks.update).
+
+**REST:** `GET /api/v1/ssus/:id/units` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `ssus_units`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | SSU external id |
+
+**Output:** an array of
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | Line item external id |
+| `code` | string | yes | The unit's barcode |
+| `bin` | string \| null | yes |  |
+| `product` | object \| null | yes |  |
+| `storageUnit` | object \| null | yes |  |
+
 ## Inventory
 
 ### `line_items.find_ssu_by_barcode`: Find the SSU holding a scanned unit
@@ -1102,6 +1161,26 @@ Resolve a scanned line-item barcode to the SSU (machine / location) whose storag
 | `imageUrl` | string \| null | yes |  |
 | `isActive` | boolean | yes |  |
 | `location` | any \| null | yes | GeoJSON point (PostGIS geometry), or null |
+
+### `line_items.history`: A unit's history
+
+Everything that happened to one barcoded unit: where it is now, the tasks that named it or moved it (only the tasks you may see), and its stock movements (with 'View inventory'), newest first. Find a unit's id from its barcode with the dashboard search, or from ssus_units.
+
+**REST:** `GET /api/v1/line-items/:id/history` · **Permission:** any member of the company · **Effect:** read · **MCP:** tool `line_items_history`
+
+**Input**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | Line item external id |
+
+**Output**
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `unit` | object | yes |  |
+| `tasks` | object[] | yes |  |
+| `transfers` | object[] \| null | yes | null without 'View inventory' |
 
 ### `stock_transactions.query`: Query the Transfers page
 
@@ -2869,6 +2948,8 @@ Open a nonconformance report: a task of the company's NCR task type (Settings), 
 | `team` | object \| null | yes | The team whose members see and take this task: its task type's team (change it on the type) |
 | `assignees` | object[] | yes | The people the task is on (personnel), by name |
 | `ssuId` | string \| null | yes | SSU external id |
+| `lineItemId` | string \| null | yes | The barcoded unit on the SSU the task is about (line item external id); see line_items.history |
+| `unitVerifiedAt` | string (date-time) \| null | yes | When the technician scanned the task's unit on site |
 | `externalSystemId` | string \| null | yes | Your id for the task |
 | `incompleteReason` | string \| null | yes |  |
 | `declinedReason` | string \| null | yes |  |

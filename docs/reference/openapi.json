@@ -23748,6 +23748,367 @@
         "x-eightyone-dry-run": "n/a"
       }
     },
+    "/api/v1/line-items/{id}/history": {
+      "get": {
+        "operationId": "line_items.history",
+        "summary": "A unit's history",
+        "description": "Everything that happened to one barcoded unit: where it is now, the tasks that named it or moved it (only the tasks you may see), and its stock movements (with 'View inventory'), newest first. Find a unit's id from its barcode with the dashboard search, or from ssus_units.\n\nPermission: `member`.",
+        "tags": [
+          "Inventory"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Line item external id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "unit": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Line item external id"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "The unit's barcode"
+                        },
+                        "bin": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "product": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "sku": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "sku"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "storageUnit": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "removed": {
+                          "type": "boolean",
+                          "description": "Consumed or deleted: no longer in stock"
+                        },
+                        "ssu": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "The SSU it is on now"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "code",
+                        "bin",
+                        "product",
+                        "storageUnit",
+                        "removed",
+                        "ssu"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "tasks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Task external id"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "ssu": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "dueDate": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "namedUnit": {
+                            "type": "boolean",
+                            "description": "The task named this unit"
+                          },
+                          "movedUnit": {
+                            "type": "boolean",
+                            "description": "The task moved this unit (a transfer)"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "status",
+                          "type",
+                          "ssu",
+                          "dueDate",
+                          "updatedAt",
+                          "namedUnit",
+                          "movedUnit"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "transfers": {
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "time": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "from": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "to": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "bin": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "taskId": {
+                                "description": "The task that moved it, when you may see it",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "time",
+                              "from",
+                              "to",
+                              "bin",
+                              "taskId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null without 'View inventory'"
+                    }
+                  },
+                  "required": [
+                    "unit",
+                    "tasks",
+                    "transfers"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "line_items.history",
+        "x-eightyone-permission": "member",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
     "/api/v1/line-items/ssu": {
       "get": {
         "operationId": "line_items.find_ssu_by_barcode",
@@ -25730,6 +26091,25 @@
                         "null"
                       ]
                     },
+                    "lineItemId": {
+                      "description": "The barcoded unit on the SSU the task is about (line item external id); see line_items.history",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unitVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "When the technician scanned the task's unit on site"
+                    },
                     "externalSystemId": {
                       "description": "Your id for the task",
                       "type": [
@@ -25847,6 +26227,8 @@
                     "team",
                     "assignees",
                     "ssuId",
+                    "lineItemId",
+                    "unitVerifiedAt",
                     "externalSystemId",
                     "incompleteReason",
                     "declinedReason",
@@ -31829,6 +32211,194 @@
         "x-eightyone-dry-run": "n/a"
       }
     },
+    "/api/v1/ssus/{id}/units": {
+      "get": {
+        "operationId": "ssus.units",
+        "summary": "Barcoded units on an SSU",
+        "description": "The barcoded units (serialized line items, one per physical unit) on any of an SSU's storage units, in any bin, by product then barcode. These are the units a task on the SSU can name (lineItemId on tasks.create / tasks.update).\n\nPermission: `member`.",
+        "tags": [
+          "SSUs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "SSU external id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Line item external id"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "The unit's barcode"
+                      },
+                      "bin": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "product": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "sku": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "sku"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "storageUnit": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "code",
+                      "bin",
+                      "product",
+                      "storageUnit"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (problem `invalid_input` lists the fields)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing permission (problem `missing_permission`), or the key's company doesn't match",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g. an Idempotency-Key still in progress)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable (e.g. `dry_run_unsupported`, `idempotency_key_reused`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-eightyone-capability": "ssus.units",
+        "x-eightyone-permission": "member",
+        "x-eightyone-effect": "read",
+        "x-eightyone-idempotent": false,
+        "x-eightyone-dry-run": "n/a"
+      }
+    },
     "/api/v1/stock-transactions": {
       "get": {
         "operationId": "stock_transactions.list",
@@ -33969,6 +34539,25 @@
                               "null"
                             ]
                           },
+                          "lineItemId": {
+                            "description": "The barcoded unit on the SSU the task is about (line item external id); see line_items.history",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "unitVerifiedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "When the technician scanned the task's unit on site"
+                          },
                           "externalSystemId": {
                             "description": "Your id for the task",
                             "type": [
@@ -34068,6 +34657,8 @@
                           "team",
                           "assignees",
                           "ssuId",
+                          "lineItemId",
+                          "unitVerifiedAt",
                           "externalSystemId",
                           "incompleteReason",
                           "declinedReason",
@@ -34312,6 +34903,10 @@
                     "description": "SSU external id",
                     "type": "string"
                   },
+                  "lineItemId": {
+                    "description": "A barcoded unit on that SSU (line item external id; ssus_units lists them)",
+                    "type": "string"
+                  },
                   "externalSystemId": {
                     "type": "string"
                   },
@@ -34515,6 +35110,25 @@
                         "null"
                       ]
                     },
+                    "lineItemId": {
+                      "description": "The barcoded unit on the SSU the task is about (line item external id); see line_items.history",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unitVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "When the technician scanned the task's unit on site"
+                    },
                     "externalSystemId": {
                       "description": "Your id for the task",
                       "type": [
@@ -34614,6 +35228,8 @@
                     "team",
                     "assignees",
                     "ssuId",
+                    "lineItemId",
+                    "unitVerifiedAt",
                     "externalSystemId",
                     "incompleteReason",
                     "declinedReason",
@@ -35052,6 +35668,25 @@
                         "null"
                       ]
                     },
+                    "lineItemId": {
+                      "description": "The barcoded unit on the SSU the task is about (line item external id); see line_items.history",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unitVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "When the technician scanned the task's unit on site"
+                    },
                     "externalSystemId": {
                       "description": "Your id for the task",
                       "type": [
@@ -35151,6 +35786,8 @@
                     "team",
                     "assignees",
                     "ssuId",
+                    "lineItemId",
+                    "unitVerifiedAt",
                     "externalSystemId",
                     "incompleteReason",
                     "declinedReason",
@@ -35385,6 +36022,13 @@
                       "null"
                     ]
                   },
+                  "lineItemId": {
+                    "description": "A barcoded unit on the task's SSU (line item external id), or null to clear. Moving the task to another SSU clears it unless given again",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
                   "externalSystemId": {
                     "type": "string"
                   },
@@ -35580,6 +36224,25 @@
                         "null"
                       ]
                     },
+                    "lineItemId": {
+                      "description": "The barcoded unit on the SSU the task is about (line item external id); see line_items.history",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unitVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "When the technician scanned the task's unit on site"
+                    },
                     "externalSystemId": {
                       "description": "Your id for the task",
                       "type": [
@@ -35698,6 +36361,8 @@
                     "team",
                     "assignees",
                     "ssuId",
+                    "lineItemId",
+                    "unitVerifiedAt",
                     "externalSystemId",
                     "incompleteReason",
                     "declinedReason",
@@ -36570,6 +37235,25 @@
                         "null"
                       ]
                     },
+                    "lineItemId": {
+                      "description": "The barcoded unit on the SSU the task is about (line item external id); see line_items.history",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unitVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "When the technician scanned the task's unit on site"
+                    },
                     "externalSystemId": {
                       "description": "Your id for the task",
                       "type": [
@@ -36681,6 +37365,8 @@
                     "team",
                     "assignees",
                     "ssuId",
+                    "lineItemId",
+                    "unitVerifiedAt",
                     "externalSystemId",
                     "incompleteReason",
                     "declinedReason",
