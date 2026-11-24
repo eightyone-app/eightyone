@@ -1590,6 +1590,10 @@
                     "declined"
                   ],
                   "description": "The status that triggers it"
+                },
+                "waitsForTrigger": {
+                  "description": "The task created is blocked until the triggering task is done",
+                  "type": "boolean"
                 }
               },
               "required": [

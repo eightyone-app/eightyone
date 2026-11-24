@@ -3659,7 +3659,7 @@ The company's flows: automations that create the next task when a task reaches a
 
 ### `flows.simulate`: What a status change sets off
 
-If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.
+If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when the created task reaches that status: flows fire when a task is created (for the status it starts in) and on status changes, never by themselves. A task a flow creates fires nothing on its own creation.
 
 **REST:** `GET /api/v1/flows/simulate` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_simulate`
 
@@ -3681,7 +3681,7 @@ If a task of this type reaches this status, which tasks do the company's flows c
 
 ### `flows.get`: Get a flow
 
-One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.
+One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, including being created in it, a task of `to` is created; with waitsForTrigger that task is blocked until the `from` task is done). Task types by name.
 
 **REST:** `GET /api/v1/flows/:id` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_get`
 

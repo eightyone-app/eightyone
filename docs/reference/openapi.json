@@ -6370,6 +6370,10 @@
                                       "declined"
                                     ],
                                     "description": "The status that triggers it"
+                                  },
+                                  "waitsForTrigger": {
+                                    "description": "The task created is blocked until the triggering task is done",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -8929,6 +8933,10 @@
                                     "declined"
                                   ],
                                   "description": "The status that triggers it"
+                                },
+                                "waitsForTrigger": {
+                                  "description": "The task created is blocked until the triggering task is done",
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
@@ -11307,6 +11315,10 @@
                                       "declined"
                                     ],
                                     "description": "The status that triggers it"
+                                  },
+                                  "waitsForTrigger": {
+                                    "description": "The task created is blocked until the triggering task is done",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -13876,6 +13888,10 @@
                                       "declined"
                                     ],
                                     "description": "The status that triggers it"
+                                  },
+                                  "waitsForTrigger": {
+                                    "description": "The task created is blocked until the triggering task is done",
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -17554,6 +17570,10 @@
                             "declined"
                           ],
                           "description": "The status that triggers it"
+                        },
+                        "waitsForTrigger": {
+                          "description": "The task it creates waits for the triggering task: created open, blocked until that task is done",
+                          "type": "boolean"
                         }
                       },
                       "required": [
@@ -17641,12 +17661,16 @@
                           },
                           "onStatus": {
                             "type": "string"
+                          },
+                          "waitsForTrigger": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
                           "from",
                           "to",
-                          "onStatus"
+                          "onStatus",
+                          "waitsForTrigger"
                         ],
                         "additionalProperties": false
                       }
@@ -17752,7 +17776,7 @@
       "get": {
         "operationId": "flows.get",
         "summary": "Get a flow",
-        "description": "One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.\n\nPermission: `flows:view`.",
+        "description": "One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, including being created in it, a task of `to` is created; with waitsForTrigger that task is blocked until the `from` task is done). Task types by name.\n\nPermission: `flows:view`.",
         "tags": [
           "Flows"
         ],
@@ -17829,12 +17853,16 @@
                           },
                           "onStatus": {
                             "type": "string"
+                          },
+                          "waitsForTrigger": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
                           "from",
                           "to",
-                          "onStatus"
+                          "onStatus",
+                          "waitsForTrigger"
                         ],
                         "additionalProperties": false
                       }
@@ -18052,6 +18080,10 @@
                                 "declined"
                               ],
                               "description": "The status that triggers it"
+                            },
+                            "waitsForTrigger": {
+                              "description": "The task it creates waits for the triggering task: created open, blocked until that task is done",
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -18139,6 +18171,10 @@
                                 "declined"
                               ],
                               "description": "The status that triggers it"
+                            },
+                            "waitsForTrigger": {
+                              "description": "The task it creates waits for the triggering task: created open, blocked until that task is done",
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -18178,6 +18214,10 @@
                                 "declined"
                               ],
                               "description": "The status that triggers it"
+                            },
+                            "waitsForTrigger": {
+                              "description": "The task it creates waits for the triggering task: created open, blocked until that task is done",
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -18261,12 +18301,16 @@
                           },
                           "onStatus": {
                             "type": "string"
+                          },
+                          "waitsForTrigger": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
                           "from",
                           "to",
-                          "onStatus"
+                          "onStatus",
+                          "waitsForTrigger"
                         ],
                         "additionalProperties": false
                       }
@@ -18536,7 +18580,7 @@
       "get": {
         "operationId": "flows.simulate",
         "summary": "What a status change sets off",
-        "description": "If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.\n\nPermission: `flows:view`.",
+        "description": "If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when the created task reaches that status: flows fire when a task is created (for the status it starts in) and on status changes, never by themselves. A task a flow creates fires nothing on its own creation.\n\nPermission: `flows:view`.",
         "tags": [
           "Flows"
         ],
@@ -18613,6 +18657,10 @@
                           "inheritAssignee": {
                             "type": "boolean"
                           },
+                          "waitsForTrigger": {
+                            "type": "boolean",
+                            "description": "The created task is blocked until the triggering task is done"
+                          },
                           "then": {
                             "type": "array",
                             "items": {
@@ -18627,6 +18675,7 @@
                           "creates",
                           "flow",
                           "inheritAssignee",
+                          "waitsForTrigger",
                           "then"
                         ],
                         "additionalProperties": false

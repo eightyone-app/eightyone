@@ -4347,7 +4347,7 @@ The company's flows: automations that create the next task when a task reaches a
 
 ### `flows.simulate`: What a status change sets off
 
-If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.
+If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when the created task reaches that status: flows fire when a task is created (for the status it starts in) and on status changes, never by themselves. A task a flow creates fires nothing on its own creation.
 
 **REST:** `GET /api/v1/flows/simulate` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_simulate`
 
@@ -4369,7 +4369,7 @@ If a task of this type reaches this status, which tasks do the company's flows c
 
 ### `flows.get`: Get a flow
 
-One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.
+One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, including being created in it, a task of `to` is created; with waitsForTrigger that task is blocked until the `from` task is done). Task types by name.
 
 **REST:** `GET /api/v1/flows/:id` · **Permission:** `flows:view` · **Effect:** read · **MCP:** tool `flows_get`
 
@@ -6350,9 +6350,9 @@ Every tool acts as the connected user, in one company, with that user's permissi
 - **`downtime_events_summary`**: Recorded stoppages per machine in a window (default: the last 30 days), most stopped time first, each broken down by reason code: the direct answer to "which machines were down most, and why?". Counts only the part of each stop inside the window; a stop still open counts up to the window end. Complements analytics.downtime, which measures time in a DOWN / MAINTENANCE status.
 - **`external_refs_lookup`**: Translate between an outside system's id and an EightyOne record. Send externalId to find the record it stands for, or entityType + entityId to find the record's id in that system. 404 when they aren't linked.
 - **`flows_create`** (changes data): Create a flow starting with a task type (one flow per starting type), with its task types and arrows. Positions are laid out for the Flow Creator when left out. Refused when an arrow already exists in another flow (both would fire, D33). Preview with dryRun first.
-- **`flows_get`**: One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, a task of `to` is created). Task types by name.
+- **`flows_get`**: One flow: its task types on the canvas (with positions and whether each takes the triggering task's assignees) and its arrows (when a task of `from` reaches `onStatus`, including being created in it, a task of `to` is created; with waitsForTrigger that task is blocked until the `from` task is done). Task types by name.
 - **`flows_list`**: The company's flows: automations that create the next task when a task reaches a status. Each with its starting task type, whether it's paused, and its size.
-- **`flows_simulate`**: If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when someone moves the created task to that status: flows fire on status changes, never by themselves.
+- **`flows_simulate`**: If a task of this type reaches this status, which tasks do the company's flows create, and what could those set off next? Follows every active flow to a depth, and flags loops and arrows paused flows would add. Use it before proposing a change. Each further step only happens when the created task reaches that status: flows fire when a task is created (for the status it starts in) and on status changes, never by themselves. A task a flow creates fires nothing on its own creation.
 - **`flows_update`** (changes data): Rename a flow, pause or resume it (enabled), and change its canvas: either send the whole canvas (nodes + edges, replacing it) or a list of changes (addNodes, removeNodes, addEdges, removeEdges; removing a task type removes its arrows). The starting task type can't change. Send expectedVersion from flows.get so a change made meanwhile isn't overwritten. Preview with dryRun first: the answer lists the arrows added and removed.
 - **`guide_get`**: EightyOne concepts and how to read the data: the glossary, downtime, maintenance, production, inventory, quality, commissioning, what deserves attention, and this company's own guidance (topic "company"). Without a topic, lists the topics. Read the glossary before working on an unfamiliar area.
 - **`handoffs_decline`** (changes data): Decline a task a partner sent you, with a reason they will see.
